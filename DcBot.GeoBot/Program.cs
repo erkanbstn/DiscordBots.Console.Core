@@ -1,11 +1,11 @@
 ﻿using DcBot.Data;
-using DcBot.GeoBot.BotCommon;
+using DcBot.GeoBot.General;
 using DcBot.GeoBot.StartUp;
 using Microsoft.Extensions.DependencyInjection;
 public class Program
 {
-    private readonly BotEventHandler _botEventHandlers;
-    public Program(BotEventHandler botEventHandlers)
+    private readonly BotEvents _botEventHandlers;
+    public Program(BotEvents botEventHandlers)
     {
         _botEventHandlers = botEventHandlers ?? throw new ArgumentNullException(nameof(botEventHandlers));
     }

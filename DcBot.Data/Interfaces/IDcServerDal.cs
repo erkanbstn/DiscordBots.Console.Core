@@ -1,4 +1,4 @@
-﻿using DcBot.Core.Concrete;
+﻿using DcBot.Core.Core;
 
 namespace DcBot.Data.Interfaces
 {

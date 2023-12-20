@@ -1,4 +1,4 @@
-﻿using DcBot.Core.Concrete;
+﻿using DcBot.Core.Core;
 using Microsoft.EntityFrameworkCore;
 
 namespace DcBot.Data

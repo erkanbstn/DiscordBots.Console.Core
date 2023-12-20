@@ -1,8 +1,8 @@
 ﻿using Discord.Commands;
 
-namespace DcBot.GeoBot.BotConfig
+namespace DcBot.GeoBot.General
 {
-    public class SocketCommandContextTypeReader : TypeReader
+    public class SccTypeReader : TypeReader
     {
         public override Task<TypeReaderResult> ReadAsync(ICommandContext context, string input, IServiceProvider services)
         {

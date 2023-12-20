@@ -1,31 +1,32 @@
-﻿using DcBot.GeoBot.BotConfig;
-using DcBot.GeoBot.BotHandler;
+﻿using DcBot.Common.PrefixHandler;
+using DcBot.GeoBot.Handler;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
-using Microsoft.Extensions.Configuration;
 using System.Reflection;
-namespace DcBot.GeoBot.BotCommon
+
+namespace DcBot.GeoBot.General
 {
-    public class BotEventHandler
+    public class BotEvents
     {
-        private readonly InitializeConfig _initializeBot;
+        private readonly InitializeBot _initializeBot;
         private readonly OnReadyHandler _onReadyHandler;
         private CommandService _commandService;
-        private IConfiguration _configuration;
         private IServiceProvider _services;
-        public BotEventHandler(InitializeConfig initializeBot, OnReadyHandler onReadyHandler, CommandService commandService, IConfiguration configuration, IServiceProvider services)
+        private readonly IPrefixControl _prefixControl;
+
+        public BotEvents(InitializeBot initializeBot, OnReadyHandler onReadyHandler, CommandService commandService, IServiceProvider services, IPrefixControl prefixControl)
         {
             _initializeBot = initializeBot;
             _onReadyHandler = onReadyHandler;
             _commandService = commandService;
-            _configuration = configuration;
             _services = services;
+            _prefixControl = prefixControl;
         }
 
         private async Task LogAsync(LogMessage log)
         {
-            Console.WriteLine(log.Message);
+            Console.WriteLine($"-{log.Message}");
         }
 
         public async Task InitializeHandlers()
@@ -36,7 +37,7 @@ namespace DcBot.GeoBot.BotCommon
             _initializeBot.Client.Ready += BotOnReadyAsync;
             _initializeBot.Client.UserJoined += UserJoinedAsync;
             _initializeBot.Client.UserLeft += UserLeftAsync;
-            _commandService.AddTypeReader(typeof(SocketCommandContext), new SocketCommandContextTypeReader());
+            _commandService.AddTypeReader(typeof(SocketCommandContext), new SccTypeReader());
             await _commandService.AddModulesAsync(Assembly.GetEntryAssembly(), _services);
         }
 
@@ -60,31 +61,7 @@ namespace DcBot.GeoBot.BotCommon
 
         private async Task MessageReceivedAsync(SocketMessage socketMessage)
         {
-            var message = socketMessage as SocketUserMessage;
-            var context = new SocketCommandContext(_initializeBot.Client, message);
-
-            if (message.Author.IsBot) return;
-
-            int index = 0;
-            while (true)
-            {
-                string key = $"BotPrefixs:Prefix:{index}";
-                string prefix = _configuration[key];
-                if (prefix == null)
-                {
-                    break;
-                }
-                index++;
-
-                int argPos = 0;
-                if (message.HasStringPrefix(prefix, ref argPos, StringComparison.OrdinalIgnoreCase))
-                {
-                    var result = await _commandService.ExecuteAsync(context, argPos, _services);
-                    if (!result.IsSuccess)
-                        await socketMessage.Channel.SendMessageAsync(result.ErrorReason);
-                    break;
-                }
-            }
+            await _prefixControl.GeoBotPrefixer(_initializeBot.Client, socketMessage);
         }
     }
 }

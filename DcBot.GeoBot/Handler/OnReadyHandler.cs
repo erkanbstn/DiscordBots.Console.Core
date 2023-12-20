@@ -1,19 +1,20 @@
-﻿using DcBot.Service.Interfaces;
-using Discord.WebSocket;
-using DcBot.Core.Concrete;
+﻿using DcBot.Common.MessageHandler;
+using DcBot.Core.Core;
+using DcBot.Service.Interfaces;
 using Discord;
+using Discord.WebSocket;
 
-namespace DcBot.GeoBot.BotHandler
+namespace DcBot.GeoBot.Handler
 {
     public class OnReadyHandler
     {
         private readonly IDcServerService _dcServerService;
-
-        public OnReadyHandler(IDcServerService dcServerService)
+        private readonly IMessageControl _messageControl;
+        public OnReadyHandler(IDcServerService dcServerService, IMessageControl messageControl)
         {
             _dcServerService = dcServerService;
+            _messageControl = messageControl;
         }
-
         public async Task ServerInitializeAsync(SocketGuild socketGuild)
         {
             var server = _dcServerService.FirstOrDefaultAsync(x => x.DiscordId == socketGuild.Id.ToString());
@@ -30,7 +31,7 @@ namespace DcBot.GeoBot.BotHandler
             }
 
             var channel = (socketGuild.Channels.FirstOrDefault(x => x.Name.Contains("bot")) as ITextChannel);
-            await channel.SendMessageAsync("Merhaba");
+            await _messageControl.MessageAsync(socketGuild, "Havalı Giriş !", true, "sunglasses");
         }
         public async Task UserJoinedAsync(SocketGuildUser user)
         {

@@ -1,10 +1,12 @@
 ﻿using DcBot.Common.MessageHandler;
+using DcBot.Common.PermissionHandler;
 using DcBot.Common.PrefixHandler;
+using DcBot.Common.QuestionHandler;
 using DcBot.Data;
 using DcBot.Data.Datas;
 using DcBot.Data.Interfaces;
-using DcBot.GeoBot.BotCommon;
-using DcBot.GeoBot.BotHandler;
+using DcBot.GeoBot.General;
+using DcBot.GeoBot.Handler;
 using DcBot.Service.Interfaces;
 using DcBot.Service.Services;
 using Discord;
@@ -12,6 +14,7 @@ using Discord.Commands;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+
 namespace DcBot.GeoBot.StartUp
 {
     public class ConfigureStartUp
@@ -20,7 +23,7 @@ namespace DcBot.GeoBot.StartUp
         {
             var serviceCollection = new ServiceCollection();
 
-            var libraryDirection = Path.GetDirectoryName(typeof(GeoBotCommands).Assembly.Location);
+            var libraryDirection = Path.GetDirectoryName(typeof(MessageControl).Assembly.Location);
             var configuration = new ConfigurationBuilder()
                .SetBasePath(libraryDirection)
                .AddJsonFile("appsettings.json")
@@ -34,10 +37,8 @@ namespace DcBot.GeoBot.StartUp
 
             serviceCollection.AddSingleton<IConfiguration>(configuration);
 
-            serviceCollection.AddSingleton<InitializeConfig>();
-            serviceCollection.AddSingleton<BotEventHandler>();
-            serviceCollection.AddSingleton<MessageControl>();
-            serviceCollection.AddSingleton<PrefixControl>();
+            serviceCollection.AddSingleton<InitializeBot>();
+            serviceCollection.AddSingleton<BotEvents>();
             serviceCollection.AddSingleton(new CommandService(new CommandServiceConfig
             {
                 DefaultRunMode = RunMode.Async,
@@ -56,6 +57,10 @@ namespace DcBot.GeoBot.StartUp
             {
                 (typeof(IDcServerDal), typeof(EFDcServerDal)),
                 (typeof(IDcServerService), typeof(DcServerService)),
+                (typeof(IPrefixControl), typeof(PrefixControl)),
+                (typeof(IQuestionControl), typeof(QuestionControl)),
+                (typeof(IMessageControl), typeof(MessageControl)),
+                (typeof(IPermissionControl), typeof(PermissionControl)),
             };
 
             foreach (var (interfaceType, implementationType) in scopedServices)

@@ -1,7 +1,6 @@
-﻿using DcBot.Core.Concrete;
+﻿using DcBot.Core.Core;
 using DcBot.Data.Interfaces;
 using DcBot.Service.Interfaces;
-using System.Data;
 using System.Linq.Expressions;
 
 namespace DcBot.Service.Services

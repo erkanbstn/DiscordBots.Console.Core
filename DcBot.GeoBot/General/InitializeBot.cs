@@ -1,19 +1,14 @@
 ﻿using Discord;
 using Discord.WebSocket;
 using Microsoft.Extensions.Configuration;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace DcBot.GeoBot.BotCommon
+namespace DcBot.GeoBot.General
 {
-    public class InitializeConfig
+    public class InitializeBot
     {
         public DiscordSocketClient Client { get; private set; }
         private readonly IConfiguration _configuration;
-        public InitializeConfig(IConfiguration configuration)
+        public InitializeBot(IConfiguration configuration)
         {
             _configuration = configuration;
         }

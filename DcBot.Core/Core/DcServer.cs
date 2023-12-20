@@ -1,4 +1,4 @@
-﻿namespace DcBot.Core.Concrete
+﻿namespace DcBot.Core.Core
 {
     public class DcServer : BaseModal
     {
