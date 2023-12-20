@@ -1,6 +1,6 @@
 ﻿using Discord.Commands;
 
-namespace DcBot.GeoBot.General
+namespace DcBot.Common.SccTypeHandler
 {
     public class SccTypeReader : TypeReader
     {

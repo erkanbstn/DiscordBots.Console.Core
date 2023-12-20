@@ -15,7 +15,7 @@ namespace DcBot.GeoBot.Handler
             _dcServerService = dcServerService;
             _messageControl = messageControl;
         }
-        public async Task ServerInitializeAsync(SocketGuild socketGuild)
+        public async Task ServerInitializeAsync(SocketGuild socketGuild, DiscordSocketClient discordSocketClient)
         {
             var server = _dcServerService.FirstOrDefaultAsync(x => x.DiscordId == socketGuild.Id.ToString());
 
@@ -30,8 +30,8 @@ namespace DcBot.GeoBot.Handler
                 });
             }
 
-            var channel = (socketGuild.Channels.FirstOrDefault(x => x.Name.Contains("bot")) as ITextChannel);
-            await _messageControl.MessageAsync(socketGuild, "Havalı Giriş !", true, "sunglasses");
+            await discordSocketClient.SetStatusAsync(UserStatus.DoNotDisturb);
+            await _messageControl.MessageToChannel(socketGuild, "bot", "Geo Burada !", "sunglasses");
         }
         public async Task UserJoinedAsync(SocketGuildUser user)
         {

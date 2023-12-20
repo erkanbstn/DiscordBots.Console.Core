@@ -2,7 +2,7 @@
 using Discord.WebSocket;
 using Microsoft.Extensions.Configuration;
 
-namespace DcBot.GeoBot.General
+namespace DcBot.GeoShip.General
 {
     public class InitializeBot
     {
@@ -14,7 +14,7 @@ namespace DcBot.GeoBot.General
         }
         public async Task InitializeClient()
         {
-            var botToken = _configuration["BotCredentials:GeoBotToken"];
+            var botToken = _configuration["BotCredentials:GeoShipToken"];
 
             if (string.IsNullOrEmpty(botToken))
             {

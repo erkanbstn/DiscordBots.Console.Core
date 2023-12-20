@@ -1,12 +1,12 @@
 ﻿using DcBot.Common.PrefixHandler;
 using DcBot.Common.SccTypeHandler;
-using DcBot.GeoBot.Handler;
+using DcBot.GeoShip.Handler;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using System.Reflection;
 
-namespace DcBot.GeoBot.General
+namespace DcBot.GeoShip.General
 {
     public class BotEvents
     {
@@ -36,32 +36,21 @@ namespace DcBot.GeoBot.General
             _initializeBot.Client.Log += LogAsync;
             _initializeBot.Client.MessageReceived += MessageReceivedAsync;
             _initializeBot.Client.Ready += BotOnReadyAsync;
-            _initializeBot.Client.UserJoined += UserJoinedAsync;
-            _initializeBot.Client.UserLeft += UserLeftAsync;
+
             _commandService.AddTypeReader(typeof(SocketCommandContext), new SccTypeReader());
             await _commandService.AddModulesAsync(Assembly.GetEntryAssembly(), _services);
         }
-
-        private async Task UserJoinedAsync(SocketGuildUser user)
-        {
-            await _onReadyHandler.UserJoinedAsync(user);
-        }
-        private async Task UserLeftAsync(SocketGuild socketGuild, SocketUser socketUser)
-        {
-            await _onReadyHandler.UserLeftAsync(socketGuild, socketUser);
-        }
-
         private async Task BotOnReadyAsync()
         {
             foreach (var guild in _initializeBot.Client.Guilds)
             {
-                await _onReadyHandler.ServerInitializeAsync(guild, _initializeBot.Client);
+                await _onReadyHandler.BotInitialize(guild, _initializeBot.Client);
             }
         }
 
         private async Task MessageReceivedAsync(SocketMessage socketMessage)
         {
-            await _prefixControl.GeoBotPrefixer(_initializeBot.Client, socketMessage);
+            await _prefixControl.GeoShipPrefixer(_initializeBot.Client, socketMessage);
         }
     }
 }

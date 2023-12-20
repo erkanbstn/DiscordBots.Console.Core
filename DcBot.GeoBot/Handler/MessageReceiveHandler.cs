@@ -30,7 +30,7 @@ namespace DcBot.GeoBot.Handler
 
         [Command("avatar")]
         [Summary("Avatar Göster")]
-        [PermissionControlAttribute(GuildPermission.SendMessages)]
+        [PermissionControl(GuildPermission.SendMessages)]
         public async Task AvatarCommand(SocketGuildUser socketGuildUser = null)
         {
             socketGuildUser ??= (SocketGuildUser)Context.User;
@@ -40,7 +40,7 @@ namespace DcBot.GeoBot.Handler
 
         [Command("dm")]
         [Summary("Mesaj Sil")]
-        [PermissionControlAttribute(GuildPermission.ManageMessages)]
+        [PermissionControl(GuildPermission.ManageMessages)]
         public async Task DeleteMessageCommand([Remainder] int count)
         {
             if (count >= 100)
@@ -56,7 +56,7 @@ namespace DcBot.GeoBot.Handler
 
         [Command("winfo")]
         [Summary("Hava Durumu Bilgisi")]
-        [PermissionControlAttribute(GuildPermission.SendMessages)]
+        [PermissionControl(GuildPermission.SendMessages)]
         public async Task WeatherCommand([Remainder] string cityName)
         {
             var apiKey = _configuration["OpenWeatherCredential:OwcToken"];
@@ -80,7 +80,7 @@ namespace DcBot.GeoBot.Handler
 
         [Command("ulisten")]
         [Summary("Mesaj İlet")]
-        [PermissionControlAttribute(GuildPermission.SendMessages)]
+        [PermissionControl(GuildPermission.SendMessages)]
         public async Task UserListenCommand(SocketGuildUser socketGuildUser, [Remainder] string message)
         {
             await _messageControl.MessageAsync(Context, $"{message} {socketGuildUser.Mention}", true, "white check mark");
@@ -88,7 +88,7 @@ namespace DcBot.GeoBot.Handler
 
         [Command("listen")]
         [Summary("Mesaj İlet")]
-        [PermissionControlAttribute(GuildPermission.Administrator)]
+        [PermissionControl(GuildPermission.Administrator)]
         public async Task ListenCommand(SocketGuildUser socketGuildUser, string channelName, [Remainder] string message)
         {
             if (channelName != null)
@@ -101,9 +101,9 @@ namespace DcBot.GeoBot.Handler
             }
         }
 
-        [Command("help")]
+        [Command("geohelp")]
         [Summary("Yardım")]
-        [PermissionControlAttribute(GuildPermission.SendMessages)]
+        [PermissionControl(GuildPermission.SendMessages)]
         public async Task HelpCommand()
         {
             var prefixes = _prefixControl.GeoBotPrefixes();
@@ -131,7 +131,7 @@ namespace DcBot.GeoBot.Handler
 
         [Command("go")]
         [Summary("Kanala Git")]
-        [PermissionControlAttribute(GuildPermission.Connect)]
+        [PermissionControl(GuildPermission.Connect)]
         public async Task GoCommand(SocketGuildUser receiverUser)
         {
             var questionerUser = Context.User as SocketGuildUser;
@@ -157,7 +157,7 @@ namespace DcBot.GeoBot.Handler
 
         [Command("pull")]
         [Summary("Kanala Çek")]
-        [PermissionControlAttribute(GuildPermission.MoveMembers)]
+        [PermissionControl(GuildPermission.MoveMembers)]
         public async Task PullCommand(SocketGuildUser receiverUser)
         {
             var questionerUser = Context.User as SocketGuildUser;
@@ -178,88 +178,6 @@ namespace DcBot.GeoBot.Handler
             {
                 await receiverUser.ModifyAsync(properties => properties.Channel = questionerUser.VoiceChannel);
             }
-        }
-
-        [Command("ship")]
-        [Summary("Shiple")]
-        [PermissionControlAttribute(GuildPermission.SendMessages)]
-        public async Task ShipCommand(SocketGuildUser shippedUser)
-        {
-            var shipperUser = Context.User as SocketGuildUser;
-            Random random = new Random();
-            var shipCount = random.Next(0, 100);
-
-            string shipResult;
-            string hearts = "💗";
-            string brokenHearts = "💔";
-
-            if (shipCount >= 0 && shipCount <= 10)
-            {
-                shipResult = "Belki de Denememelisiniz..";
-                hearts = _messageControl.RepeatEmoji(hearts, 1);
-                brokenHearts = _messageControl.RepeatEmoji(brokenHearts, 9);
-            }
-            else if (shipCount > 10 && shipCount <= 20)
-            {
-                shipResult = "Aranızdaki Aşk Biraz Zayıf Gibi Görünüyor..";
-                hearts = _messageControl.RepeatEmoji(hearts, 2);
-                brokenHearts = _messageControl.RepeatEmoji(brokenHearts, 8);
-            }
-            else if (shipCount > 20 && shipCount <= 30)
-            {
-                shipResult = "Pek Parlak Değilsiniz..";
-                hearts = _messageControl.RepeatEmoji(hearts, 3);
-                brokenHearts = _messageControl.RepeatEmoji(brokenHearts, 7);
-            }
-            else if (shipCount > 30 && shipCount <= 40)
-            {
-                shipResult = "Denemekten Zarar Gelir mi.?";
-                hearts = _messageControl.RepeatEmoji(hearts, 4);
-                brokenHearts = _messageControl.RepeatEmoji(brokenHearts, 6);
-            }
-            else if (shipCount > 40 && shipCount <= 50)
-            {
-                shipResult = "Belki Bir Şansınız Var..";
-                hearts = _messageControl.RepeatEmoji(hearts, 5);
-                brokenHearts = _messageControl.RepeatEmoji(brokenHearts, 5);
-            }
-            else if (shipCount > 50 && shipCount <= 60)
-            {
-                shipResult = "Birbirinize Olan Sevginiz Büyük.!";
-                hearts = _messageControl.RepeatEmoji(hearts, 6);
-                brokenHearts = _messageControl.RepeatEmoji(brokenHearts, 4);
-            }
-            else if (shipCount > 60 && shipCount <= 70)
-            {
-                shipResult = "Birbirinize Olan Sevginiz Devasa.!";
-                hearts = _messageControl.RepeatEmoji(hearts, 7);
-                brokenHearts = _messageControl.RepeatEmoji(brokenHearts, 3);
-            }
-            else if (shipCount > 70 && shipCount <= 80)
-            {
-                shipResult = "Aranızdaki Aşk Muazzam, Birbirinizi Çok Seviyorsunuz.!";
-                hearts = _messageControl.RepeatEmoji(hearts, 8);
-                brokenHearts = _messageControl.RepeatEmoji(brokenHearts, 2);
-            }
-            else
-            {
-                shipResult = "Hanginiz Nikahı Basıyor??";
-                hearts = _messageControl.RepeatEmoji("💖", 10);
-            }
-
-            var embed = new EmbedBuilder()
-                .WithColor(Color.Magenta)
-                .WithTitle("Aşk Yüzdesi")
-                .WithDescription($"{shipperUser.Mention} ve {shippedUser.Mention} Aşk Yüzdeniz: **{shipCount}%**\n\n`{shipResult}`\n\n{hearts} {brokenHearts}")
-                .WithFooter(new EmbedFooterBuilder
-                {
-                    IconUrl = shipperUser.GetAvatarUrl(),
-                    Text = shipperUser.Username
-                })
-                .WithThumbnailUrl(shippedUser.GetAvatarUrl())
-                .Build();
-
-            await Context.Channel.SendMessageAsync(embed: embed);
         }
     }
 }

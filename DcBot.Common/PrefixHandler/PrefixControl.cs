@@ -79,5 +79,38 @@ namespace DcBot.Common.PrefixHandler
                 }
             }
         }
+        public async Task GeoShipPrefixer(DiscordSocketClient discordSocketClient, SocketMessage socketMessage)
+        {
+            var socketUserMessage = socketMessage as SocketUserMessage;
+
+            if (!(socketMessage is SocketUserMessage) || socketUserMessage.Author.IsBot)
+                return;
+
+            var socketCommandContext = new SocketCommandContext(discordSocketClient, socketUserMessage);
+
+            var prefixes = GeoBotPrefixes();
+            foreach (var prefix in prefixes)
+            {
+                int argPos = 0;
+                if (socketUserMessage.HasStringPrefix(prefix, ref argPos, StringComparison.OrdinalIgnoreCase))
+                {
+                    if (CoolDownControl.IsOnCooldown(socketCommandContext, out var remainingTime))
+                    {
+                        await _messageControl.DeleteAfterSendAsync(await _messageControl.EmbedAsync(socketCommandContext, Color.Magenta, "hourglass", $"Komutu Tekrar Göndermeden Önce {remainingTime.TotalSeconds:F2} Saniye Beklemelisin."));
+                        return;
+                    }
+
+                    CoolDownControl.UpdateLastCommandTime(socketCommandContext.User.Id);
+
+                    if (await _permissionControl.CheckCommandPermissionAsync(socketCommandContext, socketUserMessage, prefix))
+                    {
+                        var result = await _commandService.ExecuteAsync(socketCommandContext, argPos, _services);
+                        if (!result.IsSuccess)
+                            await socketMessage.Channel.SendMessageAsync(result.ErrorReason);
+                        break;
+                    }
+                }
+            }
+        }
     }
 }
