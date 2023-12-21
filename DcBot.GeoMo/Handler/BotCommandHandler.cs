@@ -1,17 +1,15 @@
 ﻿using DcBot.Common.MessageHandler;
-using DcBot.Common.SccTypeHandler;
-using DcBot.Core.Core;
 using DcBot.Service.Interfaces;
 using Discord;
 using Discord.WebSocket;
 
-namespace DcBot.GeoRGuard.Handler
+namespace DcBot.GeoMo.Handler
 {
-    public class OnReadyHandler
+    public class BotCommandHandler
     {
         private readonly IDcServerService _dcServerService;
         private readonly IMessageControl _messageControl;
-        public OnReadyHandler(IDcServerService dcServerService, IMessageControl messageControl)
+        public BotCommandHandler(IDcServerService dcServerService, IMessageControl messageControl)
         {
             _dcServerService = dcServerService;
             _messageControl = messageControl;
@@ -19,7 +17,7 @@ namespace DcBot.GeoRGuard.Handler
         public async Task BotInitialize(SocketGuild socketGuild, DiscordSocketClient discordSocketClient)
         {
             await discordSocketClient.SetStatusAsync(UserStatus.DoNotDisturb);
-            await _messageControl.MessageToChannel(socketGuild, "bot", "Geo Role Guard !", "shield");
+            await _messageControl.MessageToChannel(socketGuild, "bot", "Geo Money !", "dollar");
         }
     }
 }

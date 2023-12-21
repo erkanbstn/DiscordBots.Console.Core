@@ -13,7 +13,6 @@ namespace DcBot.Common.CooldownHandler
             var commandCooldowns = CommandCooldowns.GetOrAdd(commandName, _ => new ConcurrentDictionary<ulong, DateTime>());
             commandCooldowns.AddOrUpdate(userId, DateTime.UtcNow, (_, oldValue) => DateTime.UtcNow);
         }
-
         public static bool CoolDown(SocketCommandContext context, string commandName, out TimeSpan remainingTime)
         {
             if (context.User.Id == context.Guild.OwnerId)

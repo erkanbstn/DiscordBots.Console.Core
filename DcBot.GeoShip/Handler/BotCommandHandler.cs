@@ -3,13 +3,13 @@ using DcBot.Service.Interfaces;
 using Discord;
 using Discord.WebSocket;
 
-namespace DcBot.GeoMo.Handler
+namespace DcBot.GeoShip.Handler
 {
-    public class OnReadyHandler
+    public class BotCommandHandler
     {
         private readonly IDcServerService _dcServerService;
         private readonly IMessageControl _messageControl;
-        public OnReadyHandler(IDcServerService dcServerService, IMessageControl messageControl)
+        public BotCommandHandler(IDcServerService dcServerService, IMessageControl messageControl)
         {
             _dcServerService = dcServerService;
             _messageControl = messageControl;
@@ -17,7 +17,7 @@ namespace DcBot.GeoMo.Handler
         public async Task BotInitialize(SocketGuild socketGuild, DiscordSocketClient discordSocketClient)
         {
             await discordSocketClient.SetStatusAsync(UserStatus.DoNotDisturb);
-            await _messageControl.MessageToChannel(socketGuild, "bot", "Geo Money !", "dollar");
+            await _messageControl.MessageToChannel(socketGuild, "bot", "Geo Ship !", "love letter");
         }
     }
 }

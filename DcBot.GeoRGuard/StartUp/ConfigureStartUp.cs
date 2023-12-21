@@ -44,7 +44,7 @@ namespace DcBot.GeoRGuard.StartUp
                 DefaultRunMode = RunMode.Async,
                 LogLevel = LogSeverity.Debug
             }));
-            serviceCollection.AddSingleton<OnReadyHandler>();
+            serviceCollection.AddSingleton<BotCommandHandler>();
             serviceCollection.AddScoped<AppDbContext>();
             AddScopedServices(serviceCollection);
             serviceCollection.AddTransient<Program>();

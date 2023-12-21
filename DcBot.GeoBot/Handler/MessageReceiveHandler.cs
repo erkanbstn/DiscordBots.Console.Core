@@ -3,6 +3,9 @@ using DcBot.Common.MessageHandler;
 using DcBot.Common.PermissionHandler;
 using DcBot.Common.PrefixHandler;
 using DcBot.Common.QuestionHandler;
+using DcBot.Core.Core;
+using DcBot.Service.Interfaces;
+using DcBot.Service.Services;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
@@ -16,16 +19,20 @@ namespace DcBot.GeoBot.Handler
     {
         private readonly IMessageControl _messageControl;
         private readonly IQuestionControl _questionControl;
+        private readonly IAfkService _afkService;
         private readonly IConfiguration _configuration;
         private readonly IPrefixControl _prefixControl;
+        private readonly IDcServerService _dcServerService;
         private readonly CommandService _commandService;
-        public MessageReceiveHandler(IMessageControl messageControl, IQuestionControl questionControl, IConfiguration configuration, CommandService commandService, IPrefixControl prefixControl)
+        public MessageReceiveHandler(IMessageControl messageControl, IQuestionControl questionControl, IConfiguration configuration, CommandService commandService, IPrefixControl prefixControl, IAfkService afkService, IDcServerService dcServerService)
         {
             _messageControl = messageControl;
             _questionControl = questionControl;
             _configuration = configuration;
             _commandService = commandService;
             _prefixControl = prefixControl;
+            _afkService = afkService;
+            _dcServerService = dcServerService;
         }
 
         [Command("avatar")]
@@ -177,6 +184,27 @@ namespace DcBot.GeoBot.Handler
             if (await _questionControl.Questioner(Context, receiverUser, await _messageControl.EmbedAsync(Context, Color.LightOrange, "white check mark", $"{receiverUser.Mention}, {questionerUser.Mention} Kanalına Seni Çekmek İstiyor Kabul Ediyor musun?"), $"{questionerUser.Mention}, {receiverUser.Mention} Kullanıcısını Senin Bulunduğun `{questionerUser.VoiceChannel.Name}` Kanalına Taşıdım.", $"Taşıma İşlemi `İptal Edildi.`"))
             {
                 await receiverUser.ModifyAsync(properties => properties.Channel = questionerUser.VoiceChannel);
+            }
+        }
+
+        [Command("afk")]
+        [Summary("Afk Moduna Geç")]
+        [PermissionControl(GuildPermission.SendMessages)]
+        public async Task AfkCommand([Remainder] string afkReason = null)
+        {
+            var user = Context.User as SocketGuildUser;
+
+            await _afkService.EnsureAfkExistsAsync(user.Id.ToString(), user.Guild.Id.ToString(), afkReason);
+
+            await user.ModifyAsync(x => x.Nickname = $"[AFK] {user.Nickname}");
+
+            if (string.IsNullOrEmpty(afkReason))
+            {
+                await _messageControl.EmbedAsync(Context, Color.Gold, "ice cube", $"{user.Mention}, Başarıyla AFK Moduna Geçtiniz.");
+            }
+            else
+            {
+                await _messageControl.EmbedAsync(Context, Color.Gold, "ice cube", $"{user.Mention}, Başarıyla AFK Moduna Geçtiniz. Sebep: `{afkReason}`");
             }
         }
     }

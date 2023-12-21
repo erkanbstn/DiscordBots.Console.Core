@@ -44,7 +44,7 @@ namespace DcBot.GeoBot.StartUp
                 DefaultRunMode = RunMode.Async,
                 LogLevel = LogSeverity.Debug
             }));
-            serviceCollection.AddSingleton<OnReadyHandler>();
+            serviceCollection.AddSingleton<BotCommandHandler>();
             serviceCollection.AddScoped<AppDbContext>();
             AddScopedServices(serviceCollection);
             serviceCollection.AddTransient<Program>();
@@ -55,6 +55,8 @@ namespace DcBot.GeoBot.StartUp
         {
             var scopedServices = new List<(Type InterfaceType, Type ImplementationType)>
             {
+                (typeof(IAfkDal), typeof(EFAfkDal)),
+                (typeof(IAfkService), typeof(AfkService)),
                 (typeof(IDcServerDal), typeof(EFDcServerDal)),
                 (typeof(IDcServerService), typeof(DcServerService)),
                 (typeof(IPrefixControl), typeof(PrefixControl)),
