@@ -101,7 +101,7 @@ namespace DcBot.GeoBot.Handler
             }
         }
 
-        [Command("geohelp")]
+        [Command("gbhelp")]
         [Summary("Yardım")]
         [PermissionControl(GuildPermission.SendMessages)]
         public async Task HelpCommand()

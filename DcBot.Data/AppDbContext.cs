@@ -10,5 +10,7 @@ namespace DcBot.Data
         }
 
         public DbSet<DcServer> DcServers { get; set; }
+        public DbSet<User> Users { get; set; }
+        public DbSet<Skill> Skills { get; set; }
     }
 }

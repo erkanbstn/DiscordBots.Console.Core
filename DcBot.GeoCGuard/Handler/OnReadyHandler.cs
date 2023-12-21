@@ -3,7 +3,7 @@ using DcBot.Service.Interfaces;
 using Discord;
 using Discord.WebSocket;
 
-namespace DcBot.GeoShip.Handler
+namespace DcBot.GeoCGuard.Handler
 {
     public class OnReadyHandler
     {
@@ -17,7 +17,7 @@ namespace DcBot.GeoShip.Handler
         public async Task BotInitialize(SocketGuild socketGuild, DiscordSocketClient discordSocketClient)
         {
             await discordSocketClient.SetStatusAsync(UserStatus.DoNotDisturb);
-            await _messageControl.MessageToChannel(socketGuild, "bot", "Geo Ship !", "love letter");
+            await _messageControl.MessageToChannel(socketGuild, "bot", "Geo Channel Guard !", "shield");
         }
     }
 }

@@ -31,7 +31,7 @@ namespace DcBot.GeoBot.Handler
             }
 
             await discordSocketClient.SetStatusAsync(UserStatus.DoNotDisturb);
-            await _messageControl.MessageToChannel(socketGuild, "bot", "Geo Burada !", "sunglasses");
+            await _messageControl.MessageToChannel(socketGuild, "bot", "Geo Bot !", "robot");
         }
         public async Task UserJoinedAsync(SocketGuildUser user)
         {

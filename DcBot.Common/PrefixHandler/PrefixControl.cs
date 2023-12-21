@@ -5,6 +5,7 @@ using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.Configuration;
+using System.Windows.Input;
 
 namespace DcBot.Common.PrefixHandler
 {
@@ -48,69 +49,197 @@ namespace DcBot.Common.PrefixHandler
         }
         public async Task GeoBotPrefixer(DiscordSocketClient discordSocketClient, SocketMessage socketMessage)
         {
-            var socketUserMessage = socketMessage as SocketUserMessage;
 
-            if (!(socketMessage is SocketUserMessage) || socketUserMessage.Author.IsBot)
-                return;
-
-            var socketCommandContext = new SocketCommandContext(discordSocketClient, socketUserMessage);
-
-            var prefixes = GeoBotPrefixes();
-            foreach (var prefix in prefixes)
+            if (IsOnBot(socketMessage, discordSocketClient, out SocketCommandContext socketCommandContext, out SocketUserMessage socketUserMessage, out List<string> prefixes))
             {
-                int argPos = 0;
-                if (socketUserMessage.HasStringPrefix(prefix, ref argPos, StringComparison.OrdinalIgnoreCase))
+                foreach (var prefix in prefixes)
                 {
-                    if (CoolDownControl.IsOnCooldown(socketCommandContext, out var remainingTime))
+                    int argPos = 0;
+                    if (socketUserMessage.HasStringPrefix(prefix, ref argPos, StringComparison.OrdinalIgnoreCase))
                     {
-                        await _messageControl.DeleteAfterSendAsync(await _messageControl.EmbedAsync(socketCommandContext, Color.Magenta, "hourglass", $"Komutu Tekrar Göndermeden Önce {remainingTime.TotalSeconds:F2} Saniye Beklemelisin."));
-                        return;
-                    }
+                        if (CoolDownControl.GeoBotCoolDown(socketCommandContext, out var remainingTime))
+                        {
+                            await _messageControl.DeleteAfterSendAsync(await _messageControl.EmbedAsync(socketCommandContext, Color.Magenta, "hourglass", $"Komutu Tekrar Göndermeden Önce {remainingTime.TotalSeconds:F2} Saniye Beklemelisin."));
+                            return;
+                        }
 
-                    CoolDownControl.UpdateLastCommandTime(socketCommandContext.User.Id);
+                        CoolDownControl.GeoBotUpdateTime(socketCommandContext.User.Id);
 
-                    if (await _permissionControl.CheckCommandPermissionAsync(socketCommandContext, socketUserMessage, prefix))
-                    {
-                        var result = await _commandService.ExecuteAsync(socketCommandContext, argPos, _services);
-                        if (!result.IsSuccess)
-                            await socketMessage.Channel.SendMessageAsync(result.ErrorReason);
-                        break;
+                        if (await _permissionControl.CheckCommandPermissionAsync(socketCommandContext, socketUserMessage, prefix))
+                        {
+                            var result = await _commandService.ExecuteAsync(socketCommandContext, argPos, _services);
+                            if (!result.IsSuccess)
+                                await socketMessage.Channel.SendMessageAsync(result.ErrorReason);
+                            break;
+                        }
                     }
                 }
             }
         }
         public async Task GeoShipPrefixer(DiscordSocketClient discordSocketClient, SocketMessage socketMessage)
         {
-            var socketUserMessage = socketMessage as SocketUserMessage;
-
-            if (!(socketMessage is SocketUserMessage) || socketUserMessage.Author.IsBot)
-                return;
-
-            var socketCommandContext = new SocketCommandContext(discordSocketClient, socketUserMessage);
-
-            var prefixes = GeoBotPrefixes();
-            foreach (var prefix in prefixes)
+            if (IsOnBot(socketMessage, discordSocketClient, out SocketCommandContext socketCommandContext, out SocketUserMessage socketUserMessage, out List<string> prefixes))
             {
-                int argPos = 0;
-                if (socketUserMessage.HasStringPrefix(prefix, ref argPos, StringComparison.OrdinalIgnoreCase))
+                foreach (var prefix in prefixes)
                 {
-                    if (CoolDownControl.IsOnCooldown(socketCommandContext, out var remainingTime))
+                    int argPos = 0;
+                    if (socketUserMessage.HasStringPrefix(prefix, ref argPos, StringComparison.OrdinalIgnoreCase))
                     {
-                        await _messageControl.DeleteAfterSendAsync(await _messageControl.EmbedAsync(socketCommandContext, Color.Magenta, "hourglass", $"Komutu Tekrar Göndermeden Önce {remainingTime.TotalSeconds:F2} Saniye Beklemelisin."));
-                        return;
-                    }
+                        if (CoolDownControl.GeoShipCoolDown(socketCommandContext, out var remainingTime))
+                        {
+                            await _messageControl.DeleteAfterSendAsync(await _messageControl.EmbedAsync(socketCommandContext, Color.Magenta, "hourglass", $"Komutu Tekrar Göndermeden Önce {remainingTime.TotalSeconds:F2} Saniye Beklemelisin."));
+                            return;
+                        }
 
-                    CoolDownControl.UpdateLastCommandTime(socketCommandContext.User.Id);
+                        CoolDownControl.GeoShipUpdateTime(socketCommandContext.User.Id);
 
-                    if (await _permissionControl.CheckCommandPermissionAsync(socketCommandContext, socketUserMessage, prefix))
-                    {
-                        var result = await _commandService.ExecuteAsync(socketCommandContext, argPos, _services);
-                        if (!result.IsSuccess)
-                            await socketMessage.Channel.SendMessageAsync(result.ErrorReason);
-                        break;
+                        if (await _permissionControl.CheckCommandPermissionAsync(socketCommandContext, socketUserMessage, prefix))
+                        {
+                            var result = await _commandService.ExecuteAsync(socketCommandContext, argPos, _services);
+                            if (!result.IsSuccess)
+                                await socketMessage.Channel.SendMessageAsync(result.ErrorReason);
+                            break;
+                        }
                     }
                 }
             }
+        }
+        public async Task GeoUGuardPrefixer(DiscordSocketClient discordSocketClient, SocketMessage socketMessage)
+        {
+            if (IsOnBot(socketMessage, discordSocketClient, out SocketCommandContext socketCommandContext, out SocketUserMessage socketUserMessage, out List<string> prefixes))
+            {
+                foreach (var prefix in prefixes)
+                {
+                    int argPos = 0;
+                    if (socketUserMessage.HasStringPrefix(prefix, ref argPos, StringComparison.OrdinalIgnoreCase))
+                    {
+                        if (CoolDownControl.GeoUGuardCoolDown(socketCommandContext, out var remainingTime))
+                        {
+                            await _messageControl.DeleteAfterSendAsync(await _messageControl.EmbedAsync(socketCommandContext, Color.Magenta, "hourglass", $"Komutu Tekrar Göndermeden Önce {remainingTime.TotalSeconds:F2} Saniye Beklemelisin."));
+                            return;
+                        }
+
+                        CoolDownControl.GeoUGuardUpdateTime(socketCommandContext.User.Id);
+
+                        if (await _permissionControl.CheckCommandPermissionAsync(socketCommandContext, socketUserMessage, prefix))
+                        {
+                            var result = await _commandService.ExecuteAsync(socketCommandContext, argPos, _services);
+                            if (!result.IsSuccess)
+                                await socketMessage.Channel.SendMessageAsync(result.ErrorReason);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        public async Task GeoCGuardPrefixer(DiscordSocketClient discordSocketClient, SocketMessage socketMessage)
+        {
+            if (IsOnBot(socketMessage, discordSocketClient, out SocketCommandContext socketCommandContext, out SocketUserMessage socketUserMessage, out List<string> prefixes))
+            {
+                foreach (var prefix in prefixes)
+                {
+                    int argPos = 0;
+                    if (socketUserMessage.HasStringPrefix(prefix, ref argPos, StringComparison.OrdinalIgnoreCase))
+                    {
+                        if (CoolDownControl.GeoCGuardCoolDown(socketCommandContext, out var remainingTime))
+                        {
+                            await _messageControl.DeleteAfterSendAsync(await _messageControl.EmbedAsync(socketCommandContext, Color.Magenta, "hourglass", $"Komutu Tekrar Göndermeden Önce {remainingTime.TotalSeconds:F2} Saniye Beklemelisin."));
+                            return;
+                        }
+
+                        CoolDownControl.GeoCGuardUpdateTime(socketCommandContext.User.Id);
+
+                        if (await _permissionControl.CheckCommandPermissionAsync(socketCommandContext, socketUserMessage, prefix))
+                        {
+                            var result = await _commandService.ExecuteAsync(socketCommandContext, argPos, _services);
+                            if (!result.IsSuccess)
+                                await socketMessage.Channel.SendMessageAsync(result.ErrorReason);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        public async Task GeoRGuardPrefixer(DiscordSocketClient discordSocketClient, SocketMessage socketMessage)
+        {
+            if (IsOnBot(socketMessage, discordSocketClient, out SocketCommandContext socketCommandContext, out SocketUserMessage socketUserMessage, out List<string> prefixes))
+            {
+                foreach (var prefix in prefixes)
+                {
+                    int argPos = 0;
+                    if (socketUserMessage.HasStringPrefix(prefix, ref argPos, StringComparison.OrdinalIgnoreCase))
+                    {
+                        if (CoolDownControl.GeoRGuardCoolDown(socketCommandContext, out var remainingTime))
+                        {
+                            await _messageControl.DeleteAfterSendAsync(await _messageControl.EmbedAsync(socketCommandContext, Color.Magenta, "hourglass", $"Komutu Tekrar Göndermeden Önce {remainingTime.TotalSeconds:F2} Saniye Beklemelisin."));
+                            return;
+                        }
+
+                        CoolDownControl.GeoRGuardUpdateTime(socketCommandContext.User.Id);
+
+                        if (await _permissionControl.CheckCommandPermissionAsync(socketCommandContext, socketUserMessage, prefix))
+                        {
+                            var result = await _commandService.ExecuteAsync(socketCommandContext, argPos, _services);
+                            if (!result.IsSuccess)
+                                await socketMessage.Channel.SendMessageAsync(result.ErrorReason);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        public async Task GeoMoPrefixer(DiscordSocketClient discordSocketClient, SocketMessage socketMessage)
+        {
+            if (IsOnBot(socketMessage, discordSocketClient, out SocketCommandContext socketCommandContext, out SocketUserMessage socketUserMessage, out List<string> prefixes))
+            {
+                foreach (var prefix in prefixes)
+                {
+                    int argPos = 0;
+                    if (socketUserMessage.HasStringPrefix(prefix, ref argPos, StringComparison.OrdinalIgnoreCase))
+                    {
+                        if (CoolDownControl.GeoMoCoolDown(socketCommandContext, out var remainingTime))
+                        {
+                            await _messageControl.DeleteAfterSendAsync(await _messageControl.EmbedAsync(socketCommandContext, Color.Magenta, "hourglass", $"Komutu Tekrar Göndermeden Önce {remainingTime.TotalSeconds:F2} Saniye Beklemelisin."));
+                            return;
+                        }
+
+                        CoolDownControl.GeoMoUpdateTime(socketCommandContext.User.Id);
+
+                        if (await _permissionControl.CheckCommandPermissionAsync(socketCommandContext, socketUserMessage, prefix))
+                        {
+                            var result = await _commandService.ExecuteAsync(socketCommandContext, argPos, _services);
+                            if (!result.IsSuccess)
+                                await socketMessage.Channel.SendMessageAsync(result.ErrorReason);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        public bool IsOnBot(SocketMessage socketMessage, DiscordSocketClient discordSocketClient, out SocketCommandContext socketCommandContext, out SocketUserMessage socketUserMessage, out List<string> prefixes)
+        {
+            socketUserMessage = socketMessage as SocketUserMessage;
+            socketCommandContext = new SocketCommandContext(discordSocketClient, socketUserMessage);
+            prefixes = GeoBotPrefixes();
+
+            if (!(socketMessage is SocketUserMessage) || socketUserMessage.Author.IsBot)
+                return false;
+
+            foreach (var prefix in prefixes)
+            {
+                var commandName = socketMessage.Content.Split(' ')[0].Replace(prefix, "");
+                foreach (var module in _commandService.Modules)
+                {
+                    foreach (var command in module.Commands)
+                    {
+                        if (command.Name.Equals(commandName, StringComparison.OrdinalIgnoreCase))
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
         }
     }
 }

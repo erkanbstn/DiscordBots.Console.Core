@@ -1,6 +1,6 @@
 ﻿using DcBot.Data;
-using DcBot.GeoShip.General;
-using DcBot.GeoShip.StartUp;
+using DcBot.GeoCGuard.General;
+using DcBot.GeoCGuard.StartUp;
 using Microsoft.Extensions.DependencyInjection;
 public class Program
 {

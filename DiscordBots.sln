@@ -13,7 +13,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DcBot.Common", "DcBot.Commo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DcBot.GeoBot", "DcBot.GeoBot\DcBot.GeoBot.csproj", "{54879FFE-A7D4-4CD8-9A33-14E265AC4512}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DcBot.GeoShip", "DcBot.GeoShip\DcBot.GeoShip.csproj", "{88D2CDD2-1CFF-4C33-921E-355DED7DACCF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DcBot.GeoShip", "DcBot.GeoShip\DcBot.GeoShip.csproj", "{88D2CDD2-1CFF-4C33-921E-355DED7DACCF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DcBot.GeoRGuard", "DcBot.GeoRGuard\DcBot.GeoRGuard.csproj", "{182AC3B7-A124-4668-AFF8-AA34BB05678A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DcBot.GeoUGuard", "DcBot.GeoUGuard\DcBot.GeoUGuard.csproj", "{35FF5AFA-D9A2-4177-9EF6-CC773D254AEB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DcBot.GeoCGuard", "DcBot.GeoCGuard\DcBot.GeoCGuard.csproj", "{6D0F6798-B482-40F5-A6B0-F48AB1B19884}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DcBot.GeoMo", "DcBot.GeoMo\DcBot.GeoMo.csproj", "{3EBF0562-DF2A-4516-9E84-6AB332F04FF2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,6 +53,22 @@ Global
 		{88D2CDD2-1CFF-4C33-921E-355DED7DACCF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{88D2CDD2-1CFF-4C33-921E-355DED7DACCF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{88D2CDD2-1CFF-4C33-921E-355DED7DACCF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{182AC3B7-A124-4668-AFF8-AA34BB05678A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{182AC3B7-A124-4668-AFF8-AA34BB05678A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{182AC3B7-A124-4668-AFF8-AA34BB05678A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{182AC3B7-A124-4668-AFF8-AA34BB05678A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{35FF5AFA-D9A2-4177-9EF6-CC773D254AEB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{35FF5AFA-D9A2-4177-9EF6-CC773D254AEB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{35FF5AFA-D9A2-4177-9EF6-CC773D254AEB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{35FF5AFA-D9A2-4177-9EF6-CC773D254AEB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6D0F6798-B482-40F5-A6B0-F48AB1B19884}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6D0F6798-B482-40F5-A6B0-F48AB1B19884}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6D0F6798-B482-40F5-A6B0-F48AB1B19884}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6D0F6798-B482-40F5-A6B0-F48AB1B19884}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3EBF0562-DF2A-4516-9E84-6AB332F04FF2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3EBF0562-DF2A-4516-9E84-6AB332F04FF2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3EBF0562-DF2A-4516-9E84-6AB332F04FF2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3EBF0562-DF2A-4516-9E84-6AB332F04FF2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

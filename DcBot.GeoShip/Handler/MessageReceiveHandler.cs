@@ -89,7 +89,7 @@ namespace DcBot.GeoShip.Handler
             await _messageControl.EmbedShipAsync(Context, shippedUser, shipCount, shipResult, hearts, brokenHearts);
         }
 
-        [Command("shiphelp")]
+        [Command("gshelp")]
         [Summary("Yardım")]
         [PermissionControlAttribute(GuildPermission.SendMessages)]
         public async Task HelpCommand()
