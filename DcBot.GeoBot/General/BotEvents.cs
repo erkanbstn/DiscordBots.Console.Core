@@ -61,7 +61,7 @@ namespace DcBot.GeoBot.General
 
         private async Task MessageReceivedAsync(SocketMessage socketMessage)
         {
-            await _prefixControl.GeoBotPrefixer(_initializeBot.Client, socketMessage);
+            await _prefixControl.GeoCommandPrefixer(_initializeBot.Client, socketMessage, "GeoBot");
         }
     }
 }

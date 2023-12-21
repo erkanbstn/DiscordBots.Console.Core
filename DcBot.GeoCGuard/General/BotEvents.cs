@@ -50,7 +50,7 @@ namespace DcBot.GeoCGuard.General
 
         private async Task MessageReceivedAsync(SocketMessage socketMessage)
         {
-            await _prefixControl.GeoCGuardPrefixer(_initializeBot.Client, socketMessage);
+            await _prefixControl.GeoCommandPrefixer(_initializeBot.Client, socketMessage,"GeoCGuard");
         }
     }
 }

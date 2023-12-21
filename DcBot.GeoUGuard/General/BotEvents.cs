@@ -50,7 +50,7 @@ namespace DcBot.GeoUGuard.General
 
         private async Task MessageReceivedAsync(SocketMessage socketMessage)
         {
-            await _prefixControl.GeoUGuardPrefixer(_initializeBot.Client, socketMessage);
+            await _prefixControl.GeoCommandPrefixer(_initializeBot.Client, socketMessage, "GeoUGuard");
         }
     }
 }

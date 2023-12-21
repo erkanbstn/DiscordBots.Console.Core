@@ -50,7 +50,7 @@ namespace DcBot.GeoShip.General
 
         private async Task MessageReceivedAsync(SocketMessage socketMessage)
         {
-            await _prefixControl.GeoShipPrefixer(_initializeBot.Client, socketMessage);
+            await _prefixControl.GeoCommandPrefixer(_initializeBot.Client, socketMessage, "GeoShip");
         }
     }
 }
