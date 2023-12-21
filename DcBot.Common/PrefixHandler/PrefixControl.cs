@@ -57,13 +57,14 @@ namespace DcBot.Common.PrefixHandler
                     int argPos = 0;
                     if (socketUserMessage.HasStringPrefix(prefix, ref argPos, StringComparison.OrdinalIgnoreCase))
                     {
-                        if (CoolDownControl.GeoBotCoolDown(socketCommandContext, out var remainingTime))
+                        string commandName = "GeoBot";
+                        if (CoolDownControl.CoolDown(socketCommandContext, commandName, out var remainingTime))
                         {
                             await _messageControl.DeleteAfterSendAsync(await _messageControl.EmbedAsync(socketCommandContext, Color.Magenta, "hourglass", $"Komutu Tekrar Göndermeden Önce {remainingTime.TotalSeconds:F2} Saniye Beklemelisin."));
                             return;
                         }
 
-                        CoolDownControl.GeoBotUpdateTime(socketCommandContext.User.Id);
+                        CoolDownControl.UpdateTime(commandName, socketCommandContext.User.Id);
 
                         if (await _permissionControl.CheckCommandPermissionAsync(socketCommandContext, socketUserMessage, prefix))
                         {
@@ -85,13 +86,14 @@ namespace DcBot.Common.PrefixHandler
                     int argPos = 0;
                     if (socketUserMessage.HasStringPrefix(prefix, ref argPos, StringComparison.OrdinalIgnoreCase))
                     {
-                        if (CoolDownControl.GeoShipCoolDown(socketCommandContext, out var remainingTime))
+                        string commandName = "GeoShip";
+                        if (CoolDownControl.CoolDown(socketCommandContext, commandName, out var remainingTime))
                         {
                             await _messageControl.DeleteAfterSendAsync(await _messageControl.EmbedAsync(socketCommandContext, Color.Magenta, "hourglass", $"Komutu Tekrar Göndermeden Önce {remainingTime.TotalSeconds:F2} Saniye Beklemelisin."));
                             return;
                         }
 
-                        CoolDownControl.GeoShipUpdateTime(socketCommandContext.User.Id);
+                        CoolDownControl.UpdateTime(commandName, socketCommandContext.User.Id);
 
                         if (await _permissionControl.CheckCommandPermissionAsync(socketCommandContext, socketUserMessage, prefix))
                         {
@@ -113,13 +115,14 @@ namespace DcBot.Common.PrefixHandler
                     int argPos = 0;
                     if (socketUserMessage.HasStringPrefix(prefix, ref argPos, StringComparison.OrdinalIgnoreCase))
                     {
-                        if (CoolDownControl.GeoUGuardCoolDown(socketCommandContext, out var remainingTime))
+                        string commandName = "GeoUGuard";
+                        if (CoolDownControl.CoolDown(socketCommandContext, commandName, out var remainingTime))
                         {
                             await _messageControl.DeleteAfterSendAsync(await _messageControl.EmbedAsync(socketCommandContext, Color.Magenta, "hourglass", $"Komutu Tekrar Göndermeden Önce {remainingTime.TotalSeconds:F2} Saniye Beklemelisin."));
                             return;
                         }
 
-                        CoolDownControl.GeoUGuardUpdateTime(socketCommandContext.User.Id);
+                        CoolDownControl.UpdateTime(commandName, socketCommandContext.User.Id);
 
                         if (await _permissionControl.CheckCommandPermissionAsync(socketCommandContext, socketUserMessage, prefix))
                         {
@@ -141,13 +144,14 @@ namespace DcBot.Common.PrefixHandler
                     int argPos = 0;
                     if (socketUserMessage.HasStringPrefix(prefix, ref argPos, StringComparison.OrdinalIgnoreCase))
                     {
-                        if (CoolDownControl.GeoCGuardCoolDown(socketCommandContext, out var remainingTime))
+                        string commandName = "GeoCGuard";
+                        if (CoolDownControl.CoolDown(socketCommandContext, commandName, out var remainingTime))
                         {
                             await _messageControl.DeleteAfterSendAsync(await _messageControl.EmbedAsync(socketCommandContext, Color.Magenta, "hourglass", $"Komutu Tekrar Göndermeden Önce {remainingTime.TotalSeconds:F2} Saniye Beklemelisin."));
                             return;
                         }
 
-                        CoolDownControl.GeoCGuardUpdateTime(socketCommandContext.User.Id);
+                        CoolDownControl.UpdateTime(commandName, socketCommandContext.User.Id);
 
                         if (await _permissionControl.CheckCommandPermissionAsync(socketCommandContext, socketUserMessage, prefix))
                         {
@@ -169,13 +173,14 @@ namespace DcBot.Common.PrefixHandler
                     int argPos = 0;
                     if (socketUserMessage.HasStringPrefix(prefix, ref argPos, StringComparison.OrdinalIgnoreCase))
                     {
-                        if (CoolDownControl.GeoRGuardCoolDown(socketCommandContext, out var remainingTime))
+                        string commandName = "GeoRGuard";
+                        if (CoolDownControl.CoolDown(socketCommandContext, commandName, out var remainingTime))
                         {
                             await _messageControl.DeleteAfterSendAsync(await _messageControl.EmbedAsync(socketCommandContext, Color.Magenta, "hourglass", $"Komutu Tekrar Göndermeden Önce {remainingTime.TotalSeconds:F2} Saniye Beklemelisin."));
                             return;
                         }
 
-                        CoolDownControl.GeoRGuardUpdateTime(socketCommandContext.User.Id);
+                        CoolDownControl.UpdateTime(commandName, socketCommandContext.User.Id);
 
                         if (await _permissionControl.CheckCommandPermissionAsync(socketCommandContext, socketUserMessage, prefix))
                         {
@@ -197,13 +202,14 @@ namespace DcBot.Common.PrefixHandler
                     int argPos = 0;
                     if (socketUserMessage.HasStringPrefix(prefix, ref argPos, StringComparison.OrdinalIgnoreCase))
                     {
-                        if (CoolDownControl.GeoMoCoolDown(socketCommandContext, out var remainingTime))
+                        string commandName = "GeoMo";
+                        if (CoolDownControl.CoolDown(socketCommandContext, commandName, out var remainingTime))
                         {
                             await _messageControl.DeleteAfterSendAsync(await _messageControl.EmbedAsync(socketCommandContext, Color.Magenta, "hourglass", $"Komutu Tekrar Göndermeden Önce {remainingTime.TotalSeconds:F2} Saniye Beklemelisin."));
                             return;
                         }
 
-                        CoolDownControl.GeoMoUpdateTime(socketCommandContext.User.Id);
+                        CoolDownControl.UpdateTime(commandName, socketCommandContext.User.Id);
 
                         if (await _permissionControl.CheckCommandPermissionAsync(socketCommandContext, socketUserMessage, prefix))
                         {
