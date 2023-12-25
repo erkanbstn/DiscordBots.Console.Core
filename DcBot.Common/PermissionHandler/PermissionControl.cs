@@ -5,7 +5,7 @@ using Discord.WebSocket;
 
 namespace DcBot.Common.PermissionHandler
 {
-    public class PermissionControl: IPermissionControl
+    public class PermissionControl : IPermissionControl
     {
         private readonly CommandService _commandService;
         private readonly IMessageControl _messageControl;
@@ -30,7 +30,7 @@ namespace DcBot.Common.PermissionHandler
 
                     if (!user.GuildPermissions.Has(requirePermissionAttribute.RequiredPermission))
                     {
-                        await _messageControl.DeleteAfterSendAsync(await _messageControl.EmbedAsync(context, Color.Red, "no entry", "Bu Komutu Kullanma Yetkiniz Bulunmamaktadır."));
+                        await _messageControl.DeleteAfterSendAsync(await _messageControl.EmbedAsync(context, "no entry", "Bu Komutu Kullanma Yetkiniz Bulunmamaktadır."));
                         return false;
                     }
                     return true;

@@ -24,12 +24,12 @@ namespace DcBot.Common.QuestionHandler
             await _messageControl.DeleteAfterSendAsync(questionMessage, 15000);
             if (reactionResult == "👍")
             {
-                await _messageControl.DeleteAfterSendAsync(await _messageControl.EmbedAsync(socketCommandContext, Color.LightOrange, "loud sound", successMessage), 3000);
+                await _messageControl.DeleteAfterSendAsync(await _messageControl.EmbedAsync(socketCommandContext, "loud sound", successMessage), 3000);
                 return true;
             }
             else
             {
-                await _messageControl.DeleteAfterSendAsync(await _messageControl.EmbedAsync(socketCommandContext, Color.Teal, "mute", cancelMessage), 3000);
+                await _messageControl.DeleteAfterSendAsync(await _messageControl.EmbedAsync(socketCommandContext, "mute", cancelMessage), 3000);
                 return false;
             }
         }

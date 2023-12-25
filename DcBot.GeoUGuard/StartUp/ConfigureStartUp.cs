@@ -55,6 +55,10 @@ namespace DcBot.GeoUGuard.StartUp
         {
             var scopedServices = new List<(Type InterfaceType, Type ImplementationType)>
             {
+                (typeof(IRoleDal), typeof(EFRoleDal)),
+                (typeof(IRoleService), typeof(RoleService)),
+                (typeof(IUserDal), typeof(EFUserDal)),
+                (typeof(IUserService), typeof(UserService)),
                 (typeof(IDcServerDal), typeof(EFDcServerDal)),
                 (typeof(IDcServerService), typeof(DcServerService)),
                 (typeof(IPrefixControl), typeof(PrefixControl)),

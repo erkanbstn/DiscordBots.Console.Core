@@ -1,9 +1,9 @@
 ﻿namespace DcBot.Core.Core
 {
-    public class User : BaseModal
+    public class Channel : BaseModal
     {
-        public string? UserName { get; set; }
-        public int? Money { get; set; }
+        public string Name { get; set; }
+        public string ChannelType { get; set; }
         public int? DcServerId { get; set; }
         public DcServer? DcServer { get; set; }
     }

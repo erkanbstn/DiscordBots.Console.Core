@@ -47,7 +47,7 @@ namespace DcBot.Common.MessageHandler
 
             return await context.Channel.SendMessageAsync(content);
         }
-        public async Task<RestUserMessage> EmbedAsync(SocketCommandContext context, Color color, string emoteKey, string content, string footer = "Created By Geo.")
+        public async Task<RestUserMessage> EmbedAsync(SocketCommandContext context, string emoteKey, string content, string footer = "Created By Geo.")
         {
             await ReactionAsync(context, emoteKey);
 
@@ -61,6 +61,9 @@ namespace DcBot.Common.MessageHandler
                 .WithIconUrl(context.Guild.IconUrl)
                 .WithText(footer);
 
+            var random = new Random();
+
+            var color = new Color(random.Next(256), random.Next(256), random.Next(256));
 
             var embedMessage = new EmbedBuilder()
                 .WithDescription(content)

@@ -17,7 +17,7 @@ namespace DcBot.GeoMo.Handler
         public async Task BotInitialize(SocketGuild socketGuild, DiscordSocketClient discordSocketClient)
         {
             await discordSocketClient.SetStatusAsync(UserStatus.DoNotDisturb);
-            await _messageControl.MessageToChannel(socketGuild, "bot", "Geo Money !", "dollar");
+            await _messageControl.DeleteAfterSendAsync(await _messageControl.MessageToChannel(socketGuild, "bot", "Geo Money !", "dollar"));
         }
     }
 }

@@ -2,7 +2,7 @@
 
 namespace DcBot.Service.Interfaces
 {
-    public interface IUserService : IRepositoryService<User>
+    public interface IChannelService : IRepositoryService<Channel>
     {
     }
 }

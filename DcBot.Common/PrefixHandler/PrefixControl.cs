@@ -57,7 +57,7 @@ namespace DcBot.Common.PrefixHandler
                     {
                         if (CoolDownControl.CoolDown(socketCommandContext, commandName, out var remainingTime))
                         {
-                            await _messageControl.DeleteAfterSendAsync(await _messageControl.EmbedAsync(socketCommandContext, Color.Magenta, "hourglass", $"Komutu Tekrar Göndermeden Önce {remainingTime.TotalSeconds:F2} Saniye Beklemelisin."));
+                            await _messageControl.DeleteAfterSendAsync(await _messageControl.EmbedAsync(socketCommandContext, "hourglass", $"Komutu Tekrar Göndermeden Önce {remainingTime.TotalSeconds:F2} Saniye Beklemelisin."));
                             return;
                         }
 

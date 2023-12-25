@@ -11,15 +11,15 @@ namespace DcBot.GeoCGuard.General
     public class BotEvents
     {
         private readonly InitializeBot _initializeBot;
-        private readonly OnReadyHandler _onReadyHandler;
+        private readonly BotCommandHandler _botCommandHandler;
         private CommandService _commandService;
         private IServiceProvider _services;
         private readonly IPrefixControl _prefixControl;
 
-        public BotEvents(InitializeBot initializeBot, OnReadyHandler onReadyHandler, CommandService commandService, IServiceProvider services, IPrefixControl prefixControl)
+        public BotEvents(InitializeBot initializeBot, BotCommandHandler onReadyHandler, CommandService commandService, IServiceProvider services, IPrefixControl prefixControl)
         {
             _initializeBot = initializeBot;
-            _onReadyHandler = onReadyHandler;
+            _botCommandHandler = onReadyHandler;
             _commandService = commandService;
             _services = services;
             _prefixControl = prefixControl;
@@ -44,13 +44,14 @@ namespace DcBot.GeoCGuard.General
         {
             foreach (var guild in _initializeBot.Client.Guilds)
             {
-                await _onReadyHandler.BotInitialize(guild, _initializeBot.Client);
+                await _botCommandHandler.BotInitialize(guild, _initializeBot.Client);
             }
         }
 
         private async Task MessageReceivedAsync(SocketMessage socketMessage)
         {
-            await _prefixControl.GeoCommandPrefixer(_initializeBot.Client, socketMessage,"GeoCGuard");
+            await _prefixControl.GeoCommandPrefixer(_initializeBot.Client, socketMessage, "GeoCGuard");
+            await _botCommandHandler.MessageCheck(socketMessage, _initializeBot.Client);
         }
     }
 }

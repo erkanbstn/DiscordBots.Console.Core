@@ -44,7 +44,7 @@ namespace DcBot.GeoCGuard.StartUp
                 DefaultRunMode = RunMode.Async,
                 LogLevel = LogSeverity.Debug
             }));
-            serviceCollection.AddSingleton<OnReadyHandler>();
+            serviceCollection.AddSingleton<BotCommandHandler>();
             serviceCollection.AddScoped<AppDbContext>();
             AddScopedServices(serviceCollection);
             serviceCollection.AddTransient<Program>();
@@ -55,6 +55,8 @@ namespace DcBot.GeoCGuard.StartUp
         {
             var scopedServices = new List<(Type InterfaceType, Type ImplementationType)>
             {
+                (typeof(IChannelDal), typeof(EFChannelDal)),
+                (typeof(IChannelService), typeof(ChannelService)),
                 (typeof(IDcServerDal), typeof(EFDcServerDal)),
                 (typeof(IDcServerService), typeof(DcServerService)),
                 (typeof(IPrefixControl), typeof(PrefixControl)),

@@ -1,12 +1,7 @@
 ﻿using DcBot.Core.Core;
 using DcBot.Data.Interfaces;
 using DcBot.Service.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DcBot.Service.Services
 {

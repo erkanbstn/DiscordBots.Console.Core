@@ -114,7 +114,7 @@ namespace DcBot.GeoShip.Handler
                 helpMessage += $"**`{group.ModuleName}`**\n{string.Join("\n", group.Commands)}\n\n";
             }
 
-            await _messageControl.EmbedAsync(Context, Color.Purple, "white check mark", helpMessage);
+            await _messageControl.EmbedAsync(Context, "white check mark", helpMessage);
         }
     }
 }

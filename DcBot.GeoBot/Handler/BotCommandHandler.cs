@@ -18,24 +18,15 @@ namespace DcBot.GeoBot.Handler
             _messageControl = messageControl;
             _afkService = afkService;
         }
+
+        // Initialize
         public async Task ServerInitializeAsync(SocketGuild socketGuild, DiscordSocketClient discordSocketClient)
         {
-            var server = await _dcServerService.FirstOrDefaultAsync(x => x.DiscordId == socketGuild.Id.ToString());
-
-            if (server == null)
-            {
-                await _dcServerService.InsertAsync(new DcServer
-                {
-                    DiscordId = socketGuild.Id.ToString(),
-                    Name = socketGuild.Name,
-                    OwnerId = socketGuild.OwnerId.ToString(),
-                    OwnerName = socketGuild.Owner.GlobalName
-                });
-            }
-
             await discordSocketClient.SetStatusAsync(UserStatus.DoNotDisturb);
-            await _messageControl.MessageToChannel(socketGuild, "bot", "Geo Bot !", "robot");
+            await _messageControl.DeleteAfterSendAsync(await _messageControl.MessageToChannel(socketGuild, "bot", "Geo Bot !", "robot"));
         }
+
+        // User 
         public async Task UserJoinedAsync(SocketGuildUser user)
         {
             var role = user.Guild.GetRole(1185709334789886033);
@@ -49,6 +40,8 @@ namespace DcBot.GeoBot.Handler
             var welcomeChannel = socketGuild.GetTextChannel(1185670107528187937);
             await welcomeChannel.SendMessageAsync($"Görüşürüz {socketUser.Mention}.!");
         }
+
+        // AFK
         public async Task ExitAfkCommand(SocketMessage socketMessage, DiscordSocketClient discordSocketClient)
         {
             var user = (socketMessage.Author as SocketGuildUser);
@@ -68,7 +61,7 @@ namespace DcBot.GeoBot.Handler
 
                 await user.ModifyAsync(x => x.Nickname = user.Username);
 
-                await _messageControl.EmbedAsync(socketCommandContext, Color.DarkGreen, "", $"{user.Mention}, Başarıyla AFK Modundan Çıktınız, `{afkDuration}` Kadar AFK Kaldınız.");
+                await _messageControl.EmbedAsync(socketCommandContext, "watermelon", $"{user.Mention}, Başarıyla AFK Modundan Çıktınız, `{afkDuration}` Kadar AFK Kaldınız.");
             }
         }
         public async Task AfkTaggedCommand(SocketMessage socketMessage, DiscordSocketClient discordSocketClient)
@@ -85,7 +78,7 @@ namespace DcBot.GeoBot.Handler
                 if (afk != null)
                 {
                     var afkDuration = AfkDateNow(afk);
-                    await _messageControl.EmbedAsync(socketCommandContext, Color.DarkTeal, "", $"{taggedUser.Mention}, `{afkDuration}` Kadar, Şu Sebep ile AFK: `{afk.Reason ?? "Sebep Belirtilmemiş."}`");
+                    await _messageControl.EmbedAsync(socketCommandContext, "watermelon", $"{taggedUser.Mention}, `{afkDuration}` Kadar, Şu Sebep ile AFK: `{afk.Reason ?? "Sebep Belirtilmemiş."}`");
                 }
             }
         }
@@ -95,13 +88,25 @@ namespace DcBot.GeoBot.Handler
             {
                 DateTime createdAt = DateTime.Parse(userId.AfkTime.ToString());
                 TimeSpan difference = DateTime.Now - createdAt;
-                var totalMinute = difference.TotalMinutes;
-                string formattedValue = totalMinute.ToString("N2");
-                var timeMessage = totalMinute > 60
-                    ? $"{formattedValue} ({(int)totalMinute / 60} Saat {(int)totalMinute % 60} Dakika)"
-                    : $"{formattedValue} Saniye";
 
-                return timeMessage;
+                if (difference.TotalMinutes >= 60)
+                {
+                    int hours = (int)difference.TotalHours;
+                    int minutes = difference.Minutes;
+
+                    return $"{hours} Saat {minutes} Dakika";
+                }
+                else if (difference.TotalSeconds >= 60)
+                {
+                    int minutes = (int)difference.TotalMinutes;
+                    double seconds = difference.TotalSeconds - (minutes * 60);
+
+                    return $"{minutes} Dakika {seconds:N2} Saniye";
+                }
+                else
+                {
+                    return $"{difference.TotalSeconds:N2} Saniye";
+                }
             }
             else
             {

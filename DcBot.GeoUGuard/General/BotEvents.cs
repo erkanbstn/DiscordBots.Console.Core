@@ -36,10 +36,12 @@ namespace DcBot.GeoUGuard.General
             _initializeBot.Client.Log += LogAsync;
             _initializeBot.Client.MessageReceived += MessageReceivedAsync;
             _initializeBot.Client.Ready += BotOnReadyAsync;
+            _initializeBot.Client.UserJoined += UserJoinedAsync;
 
             _commandService.AddTypeReader(typeof(SocketCommandContext), new SccTypeReader());
             await _commandService.AddModulesAsync(Assembly.GetEntryAssembly(), _services);
         }
+
         private async Task BotOnReadyAsync()
         {
             foreach (var guild in _initializeBot.Client.Guilds)
@@ -47,7 +49,10 @@ namespace DcBot.GeoUGuard.General
                 await _botCommandHandler.BotInitialize(guild, _initializeBot.Client);
             }
         }
-
+        private async Task UserJoinedAsync(SocketGuildUser socketGuildUser)
+        {
+            await _botCommandHandler.AntiRaid(socketGuildUser);
+        }
         private async Task MessageReceivedAsync(SocketMessage socketMessage)
         {
             await _prefixControl.GeoCommandPrefixer(_initializeBot.Client, socketMessage, "GeoUGuard");

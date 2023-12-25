@@ -1,5 +1,4 @@
 ﻿using DcBot.Common.MessageHandler;
-using DcBot.Common.SccTypeHandler;
 using DcBot.Core.Core;
 using DcBot.Service.Interfaces;
 using Discord;
@@ -9,17 +8,17 @@ namespace DcBot.GeoRGuard.Handler
 {
     public class BotCommandHandler
     {
-        private readonly IDcServerService _dcServerService;
         private readonly IMessageControl _messageControl;
-        public BotCommandHandler(IDcServerService dcServerService, IMessageControl messageControl)
+
+        public BotCommandHandler(IMessageControl messageControl)
         {
-            _dcServerService = dcServerService;
             _messageControl = messageControl;
         }
+
         public async Task BotInitialize(SocketGuild socketGuild, DiscordSocketClient discordSocketClient)
         {
             await discordSocketClient.SetStatusAsync(UserStatus.DoNotDisturb);
-            await _messageControl.MessageToChannel(socketGuild, "bot", "Geo Role Guard !", "shield");
+            await _messageControl.DeleteAfterSendAsync(await _messageControl.MessageToChannel(socketGuild, "bot", "Geo Role Guard !", "shield"));
         }
     }
 }

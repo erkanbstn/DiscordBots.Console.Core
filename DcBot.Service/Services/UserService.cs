@@ -37,11 +37,6 @@ namespace DcBot.Service.Services
             await _UserDal.DeleteAsync(t);
         }
 
-        public async Task<User> EnsureUserExistsAsync(string userId, string userName)
-        {
-             return await _UserDal.EnsureUserExistsAsync(userId, userName);
-        }
-
         public async Task<User> FirstOrDefaultAsync(Expression<Func<User, bool>> filter)
         {
             return await _UserDal.FirstOrDefaultAsync(filter);

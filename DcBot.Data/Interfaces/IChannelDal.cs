@@ -2,7 +2,7 @@
 
 namespace DcBot.Data.Interfaces
 {
-    public interface IUserDal : IRepositoryDal<User>
+    public interface IChannelDal : IRepositoryDal<Channel>
     {
     }
 }

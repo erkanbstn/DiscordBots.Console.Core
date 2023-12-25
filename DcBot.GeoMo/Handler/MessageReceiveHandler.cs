@@ -1,11 +1,15 @@
 ﻿using DcBot.Common.MessageHandler;
 using DcBot.Common.PermissionHandler;
 using DcBot.Common.PrefixHandler;
+using DcBot.Core.Core;
 using DcBot.Service.Interfaces;
+using DcBot.Service.Services;
 using Discord;
 using Discord.Commands;
+using Discord.Rest;
 using Discord.WebSocket;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection;
 
 namespace DcBot.GeoMo.Handler
 {
@@ -16,14 +20,16 @@ namespace DcBot.GeoMo.Handler
         private readonly CommandService _commandService;
         private readonly IUserService _userService;
         private readonly ISkillService _skillService;
+        private readonly IDcServerService _dcServerService;
 
-        public MessageReceiveHandler(IMessageControl messageControl, IPrefixControl prefixControl, CommandService commandService, IUserService userService, ISkillService skillService)
+        public MessageReceiveHandler(IMessageControl messageControl, IPrefixControl prefixControl, CommandService commandService, IUserService userService, ISkillService skillService, IDcServerService dcServerService)
         {
             _messageControl = messageControl;
             _prefixControl = prefixControl;
             _commandService = commandService;
             _userService = userService;
             _skillService = skillService;
+            _dcServerService = dcServerService;
         }
 
         [Command("gmhelp")]
@@ -51,16 +57,25 @@ namespace DcBot.GeoMo.Handler
                 helpMessage += $"**`{group.ModuleName}`**\n{string.Join("\n", group.Commands)}\n\n";
             }
 
-            await _messageControl.EmbedAsync(Context, Color.Purple, "white check mark", helpMessage);
+            await _messageControl.EmbedAsync(Context, "white check mark", helpMessage);
         }
 
         [Command("gupg")]
         [Summary("Yetenek Geliştir")]
         [PermissionControl(GuildPermission.SendMessages)]
-        public async Task EarnXp(int xpAmount)
+        public async Task EarnXp(string xpName, int xpAmount)
         {
-            var user = await _userService.EnsureUserExistsAsync(Context.User.Id.ToString(), Context.User.Username);
-            var skill = await _skillService.FirstOrDefaultAsync(x => x.Name == "Earn" && x.UserId == user.Id);
+            var user = await _userService.FirstOrDefaultAsync(x => x.DiscordId == Context.User.Id.ToString());
+
+            var skillName = xpName.ToLower() == "gm" ? "GM" : (xpName.ToLower() == "mc" ? "MC" : null);
+
+            if (skillName == null)
+            {
+                await _messageControl.DeleteAfterSendAsync(await _messageControl.EmbedAsync(Context, "astonished", $"Geliştireceğiniz Yeteneğin Adını Lütfen Doğru Giriniz. Örneğin : `gm` , `mc`"));
+                return;
+            }
+
+            var skill = await _skillService.FirstOrDefaultAsync(x => x.Name == skillName && x.DiscordId == user.DiscordId);
 
             skill.Xp += xpAmount;
             user.Money -= xpAmount;
@@ -72,67 +87,85 @@ namespace DcBot.GeoMo.Handler
 
                 Random random = new Random();
 
-                skill.XpRequired += random.Next((int)skill.XpRequired, (int)(skill.Level * skill.XpRequired));
+                skill.XpRequired += random.Next((int)skill.Xp, (int)(skill.Level * skill.Xp));
 
-                skill.DailyGgCount++;
+                if (skill.Name.ToLower() == "gm")
+                {
+                    skill.DailyGmCount++;
+                    skill.GmCount++;
+                }
+                else if (skill.Name.ToLower() == "mc")
+                {
+                    skill.CashAverageMin += random.Next(1, 7);
+                    skill.CashAverageMax += random.Next(9, (int)(skill.Level * skill.CashAverageMin));
+                }
             }
 
             await _skillService.UpdateAsync(skill);
             await _userService.UpdateAsync(user);
-            await ReplyAsync($"Mevcut `Xp` Miktarınız: `{skill.Xp}/{skill.XpRequired}!` Seviyeniz: `{skill.Level}`, Günlük `GG` Kullanma Hakkınız: `{skill.DailyGgCount}`");
+
+            if (skill.Name.ToLower() == "gm")
+            {
+                await _messageControl.DeleteAfterSendAsync(await _messageControl.EmbedAsync(Context, "crystal ball", $"Mevcut `Xp` Miktarınız: `{skill.Xp}/{skill.XpRequired}!` Seviyeniz: `{skill.Level}`, Yeni Günlük `GM` Kullanma Hakkınız: `{skill.GmCount}`"));
+            }
+            else if (skill.Name.ToLower() == "mc")
+            {
+                await _messageControl.DeleteAfterSendAsync(await _messageControl.EmbedAsync(Context, "crystal ball", $"Mevcut `Xp` Miktarınız: `{skill.Xp}/{skill.XpRequired}!` Seviyeniz: `{skill.Level}`, Günlük `GM Cash` Kazanma Oranınız: `{skill.CashAverageMin}/{skill.CashAverageMax}!`"));
+            }
         }
 
-        [Command("gg")]
+        [Command("gm")]
         [Summary("Para Kazan")]
         [PermissionControl(GuildPermission.SendMessages)]
         public async Task EarnMoney()
         {
-            var user = await _userService.EnsureUserExistsAsync(Context.User.Id.ToString(), Context.User.Username);
-            var skill = await _skillService.FirstOrDefaultAsync(x => x.Name == "Earn" && x.UserId == user.Id);
+            var user = await _userService.FirstOrDefaultAsync(x => x.DiscordId == Context.User.Id.ToString());
 
-            if (skill.DailyGgCount <= 0)
+            var skillGM = await _skillService.FirstOrDefaultAsync(x => x.Name == "GM" && x.DiscordId == user.DiscordId);
+            var skillMC = await _skillService.FirstOrDefaultAsync(x => x.Name == "MC" && x.DiscordId == user.DiscordId);
+
+            if (skillGM.DailyGmCount <= 0)
             {
-                await ReplyAsync("Günlük `GG` Kullanma Hakkınız Kalmadı.");
+                await _messageControl.DeleteAfterSendAsync(await _messageControl.EmbedAsync(Context, "empty nest", $"Günlük `GM` Kullanma Hakkınız Kalmadı."));
                 return;
             }
 
-            int earnedMoney = new Random().Next(10, 101);
+            int earnedMoney = new Random().Next((int)skillMC.CashAverageMin, (int)skillMC.CashAverageMax);
             user.Money += earnedMoney;
-            skill.DailyGgCount--;
+            skillGM.DailyGmCount--;
 
-            await _skillService.UpdateAsync(skill);
+            await _skillService.UpdateAsync(skillGM);
             await _userService.UpdateAsync(user);
-            await ReplyAsync($"GeoMo 'dan `{earnedMoney}` Para Kazandınız! Günlük GG Kullanma Hakkınız: `{skill.DailyGgCount}`");
+            await _messageControl.DeleteAfterSendAsync(await _messageControl.EmbedAsync(Context, "game die", $"GeoMo 'dan `{earnedMoney}` Para Kazandınız! Günlük GM Kullanma Hakkınız: `{skillGM.DailyGmCount}`"));
         }
 
         [Command("gk")]
         [Summary("Şans Oyunu Oyna")]
         [PermissionControl(GuildPermission.SendMessages)]
-        public async Task CoinFlip(string choice, int betAmount)
+        public async Task CoinFlip(int betAmount, string choice = null)
         {
             bool isWin = false;
-            if (choice.ToLower() != "y" && choice.ToLower() != "t")
-            {
-                await ReplyAsync("Lütfen `'T'` veya `'Y'` Seçeneğini Belirtin.");
-                return;
-            }
 
-            var user = await _userService.EnsureUserExistsAsync(Context.User.Id.ToString(), Context.User.Username);
+            var user = await _userService.FirstOrDefaultAsync(x => x.DiscordId == Context.User.Id.ToString());
 
             if (user.Money < betAmount)
             {
-                await ReplyAsync("Şans Oyunu İçin Yeterli Bakiyeniz Bulunmamaktadır.");
+                await _messageControl.DeleteAfterSendAsync(await _messageControl.EmbedAsync(Context, "money with wings", $"Şans Oyunu İçin Yeterli Bakiyeniz Bulunmamaktadır."));
                 return;
             }
 
-            string result = new Random().Next(0, 2) == 0 ? "t" : "y";
-            isWin = choice.ToLower() == /*result*/"t";
+            if (string.IsNullOrEmpty(choice))
+            {
+                choice = "t";
+            }
 
-            user.Money -= betAmount;
+            string result = new Random().Next(0, 2) == 0 ? "t" : "y";
+            isWin = choice.ToLower() == result;
+
             user.Money += isWin ? betAmount * 2 : -betAmount;
             await _userService.UpdateAsync(user);
             string resultMessage = isWin ? "Kazandınız!" : "Kaybettiniz.";
-            await ReplyAsync($"Yazı Tura Sonucu: `{result.ToUpper()}`. `{resultMessage}` Toplam Paranız: `{user.Money}`");
+            await _messageControl.DeleteAfterSendAsync(await _messageControl.EmbedAsync(Context, "game die", $"Yazı Tura Sonucu: `{result.ToUpper()}`. `{resultMessage}` Toplam Paranız: `{user.Money}`"));
         }
 
         [Command("gcash")]
@@ -140,8 +173,9 @@ namespace DcBot.GeoMo.Handler
         [PermissionControl(GuildPermission.SendMessages)]
         public async Task CheckBalance()
         {
-            var user = await _userService.EnsureUserExistsAsync(Context.User.Id.ToString(), Context.User.Username);
-            await ReplyAsync($"Mevcut Para Miktarınız: `{user.Money}`");
+            var user = await _userService.FirstOrDefaultAsync(x => x.DiscordId == Context.User.Id.ToString());
+
+            await _messageControl.DeleteAfterSendAsync(await _messageControl.EmbedAsync(Context, "euro", $"Mevcut Para Miktarınız: `{user.Money}`"));
         }
 
         [Command("gxp")]
@@ -149,10 +183,10 @@ namespace DcBot.GeoMo.Handler
         [PermissionControl(GuildPermission.SendMessages)]
         public async Task CheckSkillXp()
         {
-            var user = await _userService.EnsureUserExistsAsync(Context.User.Id.ToString(), Context.User.Username);
-            var skill = await _skillService.FirstOrDefaultAsync(x => x.Name == "Earn" && x.UserId == user.Id);
+            var skillGm = await _skillService.FirstOrDefaultAsync(x => x.Name == "GM" && x.DiscordId == Context.User.Id.ToString());
+            var skillMc = await _skillService.FirstOrDefaultAsync(x => x.Name == "MC" && x.DiscordId == Context.User.Id.ToString());
 
-            await ReplyAsync($"`GG` İçin Mevcut Skill Xp Miktarınız: `{skill.Xp}/{skill.XpRequired}`");
+            await _messageControl.DeleteAfterSendAsync(await _messageControl.EmbedAsync(Context, "six pointed star", $"`GM` - Xp : `{skillGm.Xp}/{skillGm.XpRequired}` | Level : `{skillGm.Level}` \n `MC` - Xp : `{skillMc.Xp}/{skillMc.XpRequired}` | Level : `{skillMc.Level}`"), 15000);
         }
 
         [Command("gsend")]
@@ -160,13 +194,64 @@ namespace DcBot.GeoMo.Handler
         [PermissionControl(GuildPermission.SendMessages)]
         public async Task CheckSkillXp(SocketGuildUser receiverUser, int amount)
         {
-            var sender = await _userService.EnsureUserExistsAsync(Context.User.Id.ToString(), Context.User.Username);
-            var receiver = await _userService.EnsureUserExistsAsync(receiverUser.Id.ToString(), receiverUser.Username);
+            var sender = await _userService.FirstOrDefaultAsync(x => x.DiscordId == Context.User.Id.ToString());
+            var receiver = await _userService.FirstOrDefaultAsync(x => x.DiscordId == receiverUser.Id.ToString());
             sender.Money -= amount;
             receiver.Money += amount;
             await _userService.UpdateAsync(sender);
             await _userService.UpdateAsync(receiver);
-            await ReplyAsync($"{receiverUser.Mention}! `{sender.UserName}` Sana `{amount}` Kadar `GeoMo Cash` Gönderdi!");
+            await _messageControl.DeleteAfterSendAsync(await _messageControl.EmbedAsync(Context, "moneybag", $"{receiverUser.Mention}! `{sender.UserName}` Sana `{amount}` Kadar `GeoMo Cash` Gönderdi!"));
+        }
+        [Command("gosync")]
+        [Summary("GeoMo Senkronize")]
+        [PermissionControl(GuildPermission.Administrator)]
+        public async Task SyncCommand()
+        {
+            var dcServer = await _dcServerService.FirstOrDefaultAsync(x => x.DiscordId == Context.Guild.Id.ToString());
+
+            var skillsData = await _skillService.ToListByFilterAsync(x => x.DcServerId == dcServer.Id);
+
+            foreach (var item in skillsData)
+            {
+                await _skillService.DeleteAsync(item);
+            }
+
+            await Task.Delay(1500);
+
+            var users = await _userService.ToListByFilterAsync(x => x.DcServerId == dcServer.Id);
+
+            foreach (var user in users)
+            {
+                await _skillService.InsertAsync(new Skill
+                {
+                    DcServerId = dcServer.Id,
+                    DailyGmCount = 5,
+                    GmCount = 5,
+                    DiscordId = user.DiscordId.ToString(),
+                    Name = "GM",
+                    Level = 1,
+                    Xp = 0,
+                    XpRequired = 1400,
+                    CashAverageMin = null,
+                    CashAverageMax = null
+                });
+
+                await _skillService.InsertAsync(new Skill
+                {
+                    DcServerId = dcServer.Id,
+                    DiscordId = user.DiscordId.ToString(),
+                    Name = "MC",
+                    Level = 1,
+                    Xp = 0,
+                    XpRequired = 2900,
+                    CashAverageMin = 10,
+                    CashAverageMax = 101,
+                    DailyGmCount = null,
+                    GmCount = null,
+                });
+            }
+
+            await _messageControl.DeleteAfterSendAsync(await _messageControl.EmbedAsync(Context, "canned food", "GeoMo Senkronize Edildi.!"));
         }
     }
 }

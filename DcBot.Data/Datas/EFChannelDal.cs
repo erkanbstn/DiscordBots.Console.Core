@@ -1,13 +1,12 @@
 ﻿using DcBot.Core.Core;
 using DcBot.Data.Interfaces;
-using Microsoft.EntityFrameworkCore;
 
 namespace DcBot.Data.Datas
 {
-    public class EFUserDal : EFRepositoryDal<User>, IUserDal
+    public class EFChannelDal : EFRepositoryDal<Channel>, IChannelDal
     {
         private readonly AppDbContext _appDbContext;
-        public EFUserDal(AppDbContext appDbContext) : base(appDbContext)
+        public EFChannelDal(AppDbContext appDbContext) : base(appDbContext)
         {
             _appDbContext = appDbContext;
         }

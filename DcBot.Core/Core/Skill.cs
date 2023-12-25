@@ -4,10 +4,13 @@
     {
         public string Name { get; set; }
         public int? XpRequired { get; set; }
-        public int? DailyGgCount { get; set; }
+        public int? GmCount { get; set; }
+        public int? DailyGmCount { get; set; }
         public int? Xp { get; set; }
+        public int? CashAverageMin { get; set; }
+        public int? CashAverageMax { get; set; }
         public int? Level { get; set; }
-        public User? User { get; set; }
-        public int? UserId { get; set; }
+        public DcServer? DcServer { get; set; }
+        public int? DcServerId { get; set; }
     }
 }
