@@ -50,7 +50,10 @@ namespace DcBot.GeoRGuard.General
 
         private async Task MessageReceivedAsync(SocketMessage socketMessage)
         {
-            await _prefixControl.GeoCommandPrefixer(_initializeBot.Client, socketMessage, "GeoRGuard");
+            if (socketMessage is SocketUserMessage userMessage && !userMessage.Author.IsBot)
+            {
+                await _prefixControl.GeoCommandPrefixer(_initializeBot.Client, socketMessage, "GeoRGuard");
+            }
         }
     }
 }

@@ -26,35 +26,15 @@ namespace DcBot.GeoCGuard.Handler
             _dcServerService = dcServerService;
         }
 
-        [Command("gchelp")]
+        [Command("chelp")]
         [Summary("Yardım")]
         [PermissionControlAttribute(GuildPermission.SendMessages)]
         public async Task HelpCommand()
         {
-            var prefixes = _prefixControl.GeoBotPrefixes();
-
-            string prefixList = string.Join(" | ", prefixes);
-
-            string helpMessage = $"**Prefixler:**\n| {prefixList} |\n\n**Komutlar:**\n";
-
-            var commandGroups = _commandService.Modules
-                .Select(module => new
-                {
-                    ModuleName = module.Name,
-                    Commands = module.Commands
-                    .Where(command => !command.Attributes.OfType<PermissionControlAttribute>().Any() || command.Attributes.OfType<PermissionControlAttribute>().Any(attr => (Context.User as SocketGuildUser).GuildPermissions.Has(attr.RequiredPermission)))
-                    .Select(command => $"`{string.Join("`, `", command.Aliases)}` - {command.Summary ?? "Açıklama Yok"}")
-                });
-
-            foreach (var group in commandGroups)
-            {
-                helpMessage += $"**`{group.ModuleName}`**\n{string.Join("\n", group.Commands)}\n\n";
-            }
-
-            await _messageControl.EmbedAsync(Context, "white check mark", helpMessage);
+            await _prefixControl.GetHelpCommands(Context);
         }
 
-        [Command("gcsync")]
+        [Command("csync")]
         [Summary("Kanal Senkronize")]
         [PermissionControlAttribute(GuildPermission.Administrator)]
         public async Task SyncCommand()

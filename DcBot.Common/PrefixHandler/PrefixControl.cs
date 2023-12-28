@@ -24,27 +24,24 @@ namespace DcBot.Common.PrefixHandler
             _messageControl = messageControl;
             _permissionControl = permissionControl;
         }
-
-        public List<string> GeoBotPrefixes()
+        public List<string> GetAppSettingsArray(string key, string node)
         {
-            List<string> prefixes = new List<string>();
+            var words = new List<string>();
             int index = 0;
 
             while (true)
             {
-                string key = $"BotPrefixs:Prefix:{index}";
-                string prefix = _configuration[key];
+                string wordsKey = $"{key}:{node}:{index}";
+                string word = _configuration[wordsKey];
 
-                if (prefix == null)
-                {
+                if (word == null)
                     break;
-                }
 
-                prefixes.Add(prefix);
+                words.Add(word);
                 index++;
             }
 
-            return prefixes;
+            return words;
         }
         public async Task GeoCommandPrefixer(DiscordSocketClient discordSocketClient, SocketMessage socketMessage, string commandName)
         {
@@ -76,12 +73,9 @@ namespace DcBot.Common.PrefixHandler
         }
         public bool IsOnBot(SocketMessage socketMessage, DiscordSocketClient discordSocketClient, out SocketCommandContext socketCommandContext, out SocketUserMessage socketUserMessage, out List<string> prefixes)
         {
+            prefixes = GetAppSettingsArray("BotPrefixs", "Prefix");
             socketUserMessage = socketMessage as SocketUserMessage;
             socketCommandContext = new SocketCommandContext(discordSocketClient, socketUserMessage);
-            prefixes = GeoBotPrefixes();
-
-            if (!(socketMessage is SocketUserMessage) || socketUserMessage.Author.IsBot)
-                return false;
 
             foreach (var prefix in prefixes)
             {
@@ -98,6 +92,31 @@ namespace DcBot.Common.PrefixHandler
                 }
             }
             return false;
+        }
+
+        public async Task GetHelpCommands(SocketCommandContext socketCommandContext)
+        {
+            var prefixes = GetAppSettingsArray("BotPrefixs", "Prefix");
+
+            string prefixList = string.Join(" | ", prefixes);
+
+            string helpMessage = $"**Prefixler:**\n| {prefixList} |\n\n**Komutlar:**\n";
+
+            var commandGroups = _commandService.Modules
+                .Select(module => new
+                {
+                    ModuleName = module.Name,
+                    Commands = module.Commands
+                    .Where(command => !command.Attributes.OfType<PermissionControlAttribute>().Any() || command.Attributes.OfType<PermissionControlAttribute>().Any(attr => (socketCommandContext.User as SocketGuildUser).GuildPermissions.Has(attr.RequiredPermission)))
+                    .Select(command => $"`{string.Join("`, `", command.Aliases)}` - {command.Summary ?? "Açıklama Yok"}")
+                });
+
+            foreach (var group in commandGroups)
+            {
+                helpMessage += $"**`{group.ModuleName}`**\n{string.Join("\n", group.Commands)}\n\n";
+            }
+
+            await _messageControl.EmbedAsync(socketCommandContext, "white check mark", helpMessage);
         }
     }
 }

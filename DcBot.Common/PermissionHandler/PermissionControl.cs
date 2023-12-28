@@ -9,7 +9,6 @@ namespace DcBot.Common.PermissionHandler
     {
         private readonly CommandService _commandService;
         private readonly IMessageControl _messageControl;
-
         public PermissionControl(CommandService commandService, IMessageControl messageControl)
         {
             _commandService = commandService;
@@ -30,6 +29,10 @@ namespace DcBot.Common.PermissionHandler
 
                     if (!user.GuildPermissions.Has(requirePermissionAttribute.RequiredPermission))
                     {
+                        //if (requirePermissionAttribute.RequiredPermission==GuildPermission.Administrator)
+                        //{
+
+                        //}
                         await _messageControl.DeleteAfterSendAsync(await _messageControl.EmbedAsync(context, "no entry", "Bu Komutu Kullanma Yetkiniz Bulunmamaktadır."));
                         return false;
                     }

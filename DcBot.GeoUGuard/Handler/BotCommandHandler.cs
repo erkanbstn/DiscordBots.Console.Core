@@ -1,7 +1,6 @@
 ﻿using DcBot.Common.MessageHandler;
-using DcBot.Core.Core;
+using DcBot.Core.Enums;
 using DcBot.Service.Interfaces;
-using DcBot.Service.Services;
 using Discord;
 using Discord.WebSocket;
 
@@ -9,17 +8,15 @@ namespace DcBot.GeoUGuard.Handler
 {
     public class BotCommandHandler
     {
-        private readonly IDcServerService _dcServerService;
         private readonly IMessageControl _messageControl;
-        private readonly IUserService _userService;
-        private readonly IRoleService _roleService;
-        public BotCommandHandler(IDcServerService dcServerService, IMessageControl messageControl, IUserService userService, IRoleService roleService)
+        private readonly IRoleTypeRelationService _roleTypeRelationService;
+
+        public BotCommandHandler(IMessageControl messageControl, IRoleTypeRelationService roleTypeRelationService)
         {
-            _dcServerService = dcServerService;
             _messageControl = messageControl;
-            _userService = userService;
-            _roleService = roleService;
+            _roleTypeRelationService = roleTypeRelationService;
         }
+
         public async Task BotInitialize(SocketGuild socketGuild, DiscordSocketClient discordSocketClient)
         {
             await discordSocketClient.SetStatusAsync(UserStatus.DoNotDisturb);
@@ -27,32 +24,24 @@ namespace DcBot.GeoUGuard.Handler
         }
         public async Task AntiRaid(SocketGuildUser user)
         {
-            var recentJoins = await user.Guild.GetUsersAsync().Where(u => (DateTime.Now - (u as IGuildUser).JoinedAt?.DateTime) < TimeSpan.FromMinutes(1)).ToListAsync();
-
-            var waitingForJoinRoleData = await _roleService.FirstOrDefaultAsync(x => x.RoleType == Core.Enums.RoleTypes.WaitingForJoinUserRole);
+            var waitingForJoinRoleData = await _roleTypeRelationService.FirstOrDefaultAsync(x => x.RoleType == RoleTypes.Wait);
             if (waitingForJoinRoleData != null)
             {
-                var waitingForJoinRole = user.Guild.Roles.FirstOrDefault(x => x.Id.ToString() == waitingForJoinRoleData.DiscordId);
-                var finalRoleData = await _roleService.FirstOrDefaultAsync(x => x.RoleType == Core.Enums.RoleTypes.NewUserRole);
+                var finalRoleData = await _roleTypeRelationService.FirstOrDefaultAsync(x => x.RoleType == RoleTypes.New);
                 if (finalRoleData != null)
                 {
-                    var finalRole = user.Guild.Roles.FirstOrDefault(x => x.Id.ToString() == finalRoleData.DiscordId);
+                    var finalRoleId = Convert.ToUInt64(finalRoleData.DiscordId);
+                    var waitingForJoinRoleId = Convert.ToUInt64(waitingForJoinRoleData.DiscordId);
 
-                    if (recentJoins.Count >= 5)
-                    {
-                        await user.AddRoleAsync(waitingForJoinRole);
+                    await user.AddRoleAsync(waitingForJoinRoleId);
 
-                        await Task.Delay(TimeSpan.FromSeconds(10))
-                                  .ContinueWith(async _ =>
-                                  {
-                                      await user.AddRoleAsync(finalRole);
-                                  });
-                    }
+                    await Task.Delay(TimeSpan.FromSeconds(15))
+                              .ContinueWith(async _ =>
+                              {
+                                  await user.AddRoleAsync(finalRoleId);
+                                  await user.RemoveRoleAsync(waitingForJoinRoleId);
+                              });
                 }
-            }
-            else
-            {
-                //await _messageControl.MessageToChannel(socketGuild, "bot", "Geo User Guard !", "shield");
             }
         }
     }

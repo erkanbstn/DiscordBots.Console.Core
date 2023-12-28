@@ -35,7 +35,7 @@ namespace DcBot.GeoBot.Handler
         [Command("avatar")]
         [Summary("Avatar Göster")]
         [PermissionControl(GuildPermission.SendMessages)]
-        public async Task AvatarCommand(SocketGuildUser socketGuildUser = null)
+        public async Task AvatarCommand(SocketGuildUser? socketGuildUser = null)
         {
             socketGuildUser ??= (SocketGuildUser)Context.User;
             var avatarUrl = socketGuildUser.GetAvatarUrl() ?? socketGuildUser.GetDefaultAvatarUrl();
@@ -78,7 +78,6 @@ namespace DcBot.GeoBot.Handler
                 {
                     await _messageControl.DeleteAfterSendAsync(await _messageControl.EmbedAsync(Context, "white check mark", $"`Böyle Bir Şehir Bulamadım ¿`"), 5000);
                 }
-
             }
         }
 
@@ -97,7 +96,7 @@ namespace DcBot.GeoBot.Handler
         {
             if (channelName != null)
             {
-                await _messageControl.MessageAsync(socketGuildUser, channelName, $"{message} {socketGuildUser.Mention}", true, "white check mark");
+                await _messageControl.MessageToChannel(socketGuildUser, channelName, $"{message} {socketGuildUser.Mention}", true, "white check mark");
             }
             else
             {
@@ -105,32 +104,12 @@ namespace DcBot.GeoBot.Handler
             }
         }
 
-        [Command("gbhelp")]
+        [Command("ghelp")]
         [Summary("Yardım")]
         [PermissionControl(GuildPermission.SendMessages)]
         public async Task HelpCommand()
         {
-            var prefixes = _prefixControl.GeoBotPrefixes();
-
-            string prefixList = string.Join(" | ", prefixes);
-
-            string helpMessage = $"**Prefixler:**\n| {prefixList} |\n\n**Komutlar:**\n";
-
-            var commandGroups = _commandService.Modules
-                .Select(module => new
-                {
-                    ModuleName = module.Name,
-                    Commands = module.Commands
-                    .Where(command => !command.Attributes.OfType<PermissionControlAttribute>().Any() || command.Attributes.OfType<PermissionControlAttribute>().Any(attr => (Context.User as SocketGuildUser).GuildPermissions.Has(attr.RequiredPermission)))
-                    .Select(command => $"`{string.Join("`, `", command.Aliases)}` - {command.Summary ?? "Açıklama Yok"}")
-                });
-
-            foreach (var group in commandGroups)
-            {
-                helpMessage += $"**`{group.ModuleName}`**\n{string.Join("\n", group.Commands)}\n\n";
-            }
-
-            await _messageControl.EmbedAsync(Context, "white check mark", helpMessage);
+            await _prefixControl.GetHelpCommands(Context);
         }
 
         [Command("go")]
@@ -187,7 +166,7 @@ namespace DcBot.GeoBot.Handler
         [Command("afk")]
         [Summary("Afk Moduna Geç")]
         [PermissionControl(GuildPermission.SendMessages)]
-        public async Task AfkCommand([Remainder] string afkReason = null)
+        public async Task AfkCommand([Remainder] string? afkReason = null)
         {
             var user = Context.User as SocketGuildUser;
 
@@ -205,7 +184,49 @@ namespace DcBot.GeoBot.Handler
             }
         }
 
-        [Command("gbsync")]
+        [Command("w")]
+        [Summary("Nerede")]
+        [PermissionControl(GuildPermission.SendMessages)]
+        public async Task WhereCommand(SocketGuildUser socketGuildUser)
+        {
+            var voiceChannel = (socketGuildUser as IVoiceState)?.VoiceChannel;
+
+            if (voiceChannel != null)
+            {
+                await _messageControl.EmbedAsync(Context, "microphone2", $"{socketGuildUser.Mention}, `{voiceChannel.Name}` Odasında Bulunuyor.");
+            }
+            else
+            {
+                await _messageControl.EmbedAsync(Context, "microphone2", $"{socketGuildUser.Mention}, Herhangi Bir Odada `Bulunmuyor`.");
+            }
+        }
+
+        [Command("c")]
+        [Summary("Ses Kanallarında Aktif Kullanıcı Sayısı")]
+        [PermissionControl(GuildPermission.Administrator)]
+        public async Task CountCommand()
+        {
+            var voiceChannels = await (Context.Guild as IGuild)?.GetVoiceChannelsAsync();
+
+            if (voiceChannels == null || !voiceChannels.Any())
+            {
+                await _messageControl.DeleteAfterSendAsync(await _messageControl.EmbedAsync(Context, "busts in silhouette", "Sesli Kanal `Bulunamadı`."), 10000);
+                return;
+            }
+
+            int totalUserCount = 0;
+
+            foreach (var voiceChannel in voiceChannels)
+            {
+                var channelUsers = await voiceChannel.GetUsersAsync().FlattenAsync();
+                var connectedUserCount = channelUsers.Count(x => x.VoiceChannel != null);
+                totalUserCount += connectedUserCount;
+            }
+
+            await _messageControl.DeleteAfterSendAsync(await _messageControl.EmbedAsync(Context, "busts in silhouette", $"Ses Kanallarında Aktif Kullanıcı Sayısı: `{totalUserCount}`"), 10000);
+        }
+
+        [Command("gsync")]
         [Summary("Geo Senkronize")]
         [PermissionControlAttribute(GuildPermission.Administrator)]
         public async Task SyncCommand()

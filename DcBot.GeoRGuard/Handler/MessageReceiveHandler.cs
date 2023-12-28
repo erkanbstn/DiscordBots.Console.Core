@@ -2,10 +2,12 @@
 using DcBot.Common.PermissionHandler;
 using DcBot.Common.PrefixHandler;
 using DcBot.Core.Core;
+using DcBot.Core.Enums;
 using DcBot.Service.Interfaces;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+using System.Data;
 
 namespace DcBot.GeoRGuard.Handler
 {
@@ -16,56 +18,184 @@ namespace DcBot.GeoRGuard.Handler
         private readonly CommandService _commandService;
         private readonly IDcServerService _dcServerService;
         private readonly IRoleService _roleService;
+        private readonly IRoleTypeRelationService _roleTypeRelationService;
 
-        public MessageReceiveHandler(IMessageControl messageControl, IPrefixControl prefixControl, CommandService commandService, IDcServerService dcServerService, IRoleService roleService)
+        public MessageReceiveHandler(IMessageControl messageControl, IPrefixControl prefixControl, CommandService commandService, IDcServerService dcServerService, IRoleService roleService, IRoleTypeRelationService roleTypeRelationService)
         {
             _messageControl = messageControl;
             _prefixControl = prefixControl;
             _commandService = commandService;
             _dcServerService = dcServerService;
             _roleService = roleService;
+            _roleTypeRelationService = roleTypeRelationService;
         }
 
-        [Command("grhelp")]
+        [Command("rhelp")]
         [Summary("Yardım")]
         [PermissionControlAttribute(GuildPermission.Administrator)]
         public async Task HelpCommand()
         {
-            var prefixes = _prefixControl.GeoBotPrefixes();
-
-            string prefixList = string.Join(" | ", prefixes);
-
-            string helpMessage = $"**Prefixler:**\n| {prefixList} |\n\n**Komutlar:**\n";
-
-            var commandGroups = _commandService.Modules
-                .Select(module => new
-                {
-                    ModuleName = module.Name,
-                    Commands = module.Commands
-                    .Where(command => !command.Attributes.OfType<PermissionControlAttribute>().Any() || command.Attributes.OfType<PermissionControlAttribute>().Any(attr => (Context.User as SocketGuildUser).GuildPermissions.Has(attr.RequiredPermission)))
-                    .Select(command => $"`{string.Join("`, `", command.Aliases)}` - {command.Summary ?? "Açıklama Yok"}")
-                });
-
-            foreach (var group in commandGroups)
-            {
-                helpMessage += $"**`{group.ModuleName}`**\n{string.Join("\n", group.Commands)}\n\n";
-            }
-
-            await _messageControl.EmbedAsync(Context, "white check mark", helpMessage);
+            await _prefixControl.GetHelpCommands(Context);
         }
 
-        [Command("grsync")]
+        [Command("rs")]
+        [Summary("Rol Ayar")]
+        [PermissionControlAttribute(GuildPermission.Administrator)]
+        public async Task RSettingsCommand(string roleId, string roleType, string transactionType = null)
+        {
+            var dcServer = await _dcServerService.FirstOrDefaultAsync(x => x.DiscordId == Context.Guild.Id.ToString());
+
+            RoleTypes? newRoleType = Enum.GetValues(typeof(RoleTypes))
+                                          .Cast<RoleTypes>()
+                                          .FirstOrDefault(role => role.ToString().Equals(roleType, StringComparison.OrdinalIgnoreCase));
+
+            if (newRoleType.HasValue && newRoleType != RoleTypes.NoType)
+            {
+                if (string.IsNullOrEmpty(transactionType))
+                {
+                    await _roleTypeRelationService.ChangeRoleTypeAsync(newRoleType.Value, roleId, (int)dcServer.Id);
+                    await _messageControl.DeleteAfterSendAsync(await _messageControl.EmbedAsync(Context, "notebook", $"`{newRoleType}` Rol Ayarı Yapıldı.!"));
+
+                }
+                else if (transactionType.ToLower() == "a")
+                {
+                    await _roleTypeRelationService.ChangeRoleTypeAsync(newRoleType.Value, roleId, (int)dcServer.Id, transactionType);
+                    await _messageControl.DeleteAfterSendAsync(await _messageControl.EmbedAsync(Context, "notebook", $"`{newRoleType}` Rol Ayarı Yapıldı.!"));
+
+                }
+                else if (transactionType.ToLower() == "d")
+                {
+                    await _roleTypeRelationService.ChangeRoleTypeAsync(newRoleType.Value, roleId, (int)dcServer.Id, transactionType);
+                    await _messageControl.DeleteAfterSendAsync(await _messageControl.EmbedAsync(Context, "notebook", $"`{roleId}` İçin Rol Ayarları Temizlendi.!"));
+                }
+            }
+            else
+            {
+                await _messageControl.DeleteAfterSendAsync(await _messageControl.EmbedAsync(Context, "notebook spiral", "Rol Ayarını Bulamadım.!"));
+            }
+        }
+
+        [Command("rc")]
+        [Summary("Rol Ayar Kontrol")]
+        [PermissionControlAttribute(GuildPermission.Administrator)]
+        public async Task RSettingsCheckCommand()
+        {
+            var dcServer = await _dcServerService.FirstOrDefaultAsync(x => x.DiscordId == Context.Guild.Id.ToString());
+            var roleRelationsData = await _roleTypeRelationService.ToListFilteringByNoTrackAsync(x => x.DcServerId == dcServer.Id);
+            string roleNames = string.Empty;
+
+            var unsyncedRoles = Enum.GetValues(typeof(RoleTypes))
+                                    .Cast<RoleTypes>()
+                                    .Except(new[] { RoleTypes.NoType })
+                                    .Select(roleType => $"`{roleType}`")
+                                    .ToList();
+
+            roleNames += string.Join(" - ", unsyncedRoles) + "\n";
+
+            foreach (var role in roleRelationsData)
+            {
+                var roleData = await _roleService.FirstOrDefaultAsync(x => x.DiscordId == role.DiscordId);
+                roleNames += $"`{roleData.Name}` - `{role.DiscordId}` - `{(role.RoleType == RoleTypes.NoType ? "Yok" : "Var")}` \n";
+            }
+
+            await _messageControl.DeleteAfterSendAsync(await _messageControl.EmbedAsync(Context, "red envelope", $"İşte Senkronize Olmamış Roller : \n {roleNames}"), 60000);
+        }
+
+        [Command("rc")]
+        [Summary("Rol Ayar Kontrol")]
+        [PermissionControlAttribute(GuildPermission.Administrator)]
+        public async Task RSettingsCheckCommand(string roleId)
+        {
+            var dcServer = await _dcServerService.FirstOrDefaultAsync(x => x.DiscordId == Context.Guild.Id.ToString());
+
+            var roleRelationsData = await _roleTypeRelationService.ToListByFilterAsync(x => x.DiscordId == roleId);
+
+            if (roleRelationsData.Count <= 0)
+            {
+                await _messageControl.DeleteAfterSendAsync(await _messageControl.EmbedAsync(Context, "100", "Bu Role Ait Senkronizasyon Bulunmuyor."), 30000);
+                return;
+            }
+
+            string roleNames = string.Empty;
+
+            foreach (var role in roleRelationsData)
+            {
+                var roleData = await _roleService.FirstOrDefaultAsync(x => x.DiscordId == role.DiscordId);
+                roleNames += $"`{roleData.Name}` - `{role.DiscordId}` - `{(role.RoleType == RoleTypes.NoType ? "Yok" : role.RoleType.ToString())}` \n";
+            }
+
+            await _messageControl.DeleteAfterSendAsync(await _messageControl.EmbedAsync(Context, "red envelope", $"Role Ait Senkronizasyonlar : \n {roleNames}"), 30000);
+        }
+
+        [Command("rl")]
+        [Summary("Rol Liste")]
+        [PermissionControlAttribute(GuildPermission.Administrator)]
+        public async Task ListRoleCommand()
+        {
+            var dcServer = await _dcServerService.FirstOrDefaultAsync(x => x.DiscordId == Context.Guild.Id.ToString());
+
+            var rolesData = await _roleService.ToListFilteringByNoTrackAsync(x => x.DcServerId == dcServer.Id);
+
+            string roleListMessage = "İşte Roller:\n";
+
+            foreach (var role in rolesData)
+            {
+                roleListMessage += $"`{role.Name}` - `{role.DiscordId}`\n";
+            }
+
+            await _messageControl.DeleteAfterSendAsync(await _messageControl.EmbedAsync(Context, "notebook with decorative cover", roleListMessage), 15000);
+        }
+
+        [Command("rlu")]
+        [Summary("Rol Kullanıcı Liste")]
+        [PermissionControlAttribute(GuildPermission.Administrator)]
+        public async Task ListRoleUserCommand(string roleId)
+        {
+            if (!ulong.TryParse(roleId, out ulong roleIdAsUlong))
+            {
+                await _messageControl.DeleteAfterSendAsync(await _messageControl.EmbedAsync(Context, "warning", "Geçersiz Rol ID'si."));
+                return;
+            }
+
+            var targetRole = Context.Guild.GetRole(roleIdAsUlong);
+
+            if (targetRole == null)
+            {
+                await _messageControl.DeleteAfterSendAsync(await _messageControl.EmbedAsync(Context, "warning", "Belirtilen ID'ye Sahip Rol Bulunamadı."));
+                return;
+            }
+
+            var usersWithRole = targetRole.Members;
+
+            string userListMessage = $"`{targetRole.Name}` rolüne sahip Kullanıcılar:\n";
+
+            foreach (var user in usersWithRole)
+            {
+                userListMessage += $"`{user.Username}#{user.Discriminator}` - `{user.Id}`\n";
+            }
+
+            await _messageControl.DeleteAfterSendAsync(await _messageControl.EmbedAsync(Context, "notebook with decorative cover", userListMessage), 15000);
+        }
+
+        [Command("rsync")]
         [Summary("Rol Senkronize")]
         [PermissionControlAttribute(GuildPermission.Administrator)]
         public async Task SyncCommand()
         {
             var dcServer = await _dcServerService.FirstOrDefaultAsync(x => x.DiscordId == Context.Guild.Id.ToString());
 
-            var rolesData = _roleService.ToListByFilterAsync(x => x.DcServerId == dcServer.Id);
+            var rolesData = await _roleService.ToListByFilterAsync(x => x.DcServerId == dcServer.Id);
 
-            foreach (var item in await rolesData)
+            var rolesRelationsData = await _roleTypeRelationService.ToListByFilterAsync(x => x.DcServerId == dcServer.Id);
+
+            foreach (var item in rolesData)
             {
                 await _roleService.DeleteAsync(item);
+            }
+
+            foreach (var item in rolesRelationsData)
+            {
+                await _roleTypeRelationService.DeleteAsync(item);
             }
 
             await Task.Delay(1500);
@@ -78,6 +208,16 @@ namespace DcBot.GeoRGuard.Handler
                 {
                     DiscordId = role.Id.ToString(),
                     Name = role.Name,
+                    DcServerId = dcServer.Id,
+                });
+            }
+
+
+            foreach (var role in rolesDcData)
+            {
+                await _roleTypeRelationService.InsertAsync(new RoleTypeRelation
+                {
+                    DiscordId = role.Id.ToString(),
                     DcServerId = dcServer.Id,
                 });
             }

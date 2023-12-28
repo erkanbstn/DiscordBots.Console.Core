@@ -14,5 +14,6 @@ namespace DcBot.Data
         public DbSet<Skill> Skills { get; set; }
         public DbSet<Role> Roles { get; set; }
         public DbSet<Channel> Channels { get; set; }
+        public DbSet<RoleTypeRelation> RoleTypeRelations { get; set; }
     }
 }

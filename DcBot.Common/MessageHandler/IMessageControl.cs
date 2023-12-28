@@ -14,7 +14,7 @@ namespace DcBot.Common.MessageHandler
         public Task<RestUserMessage> MessageAsync(SocketCommandContext context, string content, bool isReaction = false, string emoteKey = null);
         public Task<RestUserMessage> EmbedAsync(SocketCommandContext context, string emoteKey, string content, string footer = "Created By Geo.");
         public Task<IUserMessage> MessageAsync(SocketGuild socketGuild, string content, bool isReaction = false, string emoteKey = null);
-        public Task<IUserMessage> MessageAsync(SocketGuildUser socketGuildUser, string channelName, string content, bool isReaction = false, string emoteKey = null);
+        public Task<IUserMessage> MessageToChannel(SocketGuildUser socketGuildUser, string channelName, string content, bool isReaction = false, string emoteKey = null);
         public string RepeatEmoji(string emoji, int count);
         public Task<IUserMessage> MessageToChannel(SocketGuild socketGuild, string channelName, string startMessage, string emoteKey);
         public Task<RestUserMessage> EmbedShipAsync(SocketCommandContext context, SocketGuildUser shippedUser, int shipCount, string shipResult, string hearts, string brokenHearts);

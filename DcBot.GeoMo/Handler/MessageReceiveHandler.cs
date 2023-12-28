@@ -32,32 +32,12 @@ namespace DcBot.GeoMo.Handler
             _dcServerService = dcServerService;
         }
 
-        [Command("gmhelp")]
+        [Command("mhelp")]
         [Summary("Yardım")]
         [PermissionControl(GuildPermission.SendMessages)]
         public async Task HelpCommand()
         {
-            var prefixes = _prefixControl.GeoBotPrefixes();
-
-            string prefixList = string.Join(" | ", prefixes);
-
-            string helpMessage = $"**Prefixler:**\n| {prefixList} |\n\n**Komutlar:**\n";
-
-            var commandGroups = _commandService.Modules
-                .Select(module => new
-                {
-                    ModuleName = module.Name,
-                    Commands = module.Commands
-                    .Where(command => !command.Attributes.OfType<PermissionControlAttribute>().Any() || command.Attributes.OfType<PermissionControlAttribute>().Any(attr => (Context.User as SocketGuildUser).GuildPermissions.Has(attr.RequiredPermission)))
-                    .Select(command => $"`{string.Join("`, `", command.Aliases)}` - {command.Summary ?? "Açıklama Yok"}")
-                });
-
-            foreach (var group in commandGroups)
-            {
-                helpMessage += $"**`{group.ModuleName}`**\n{string.Join("\n", group.Commands)}\n\n";
-            }
-
-            await _messageControl.EmbedAsync(Context, "white check mark", helpMessage);
+            await _prefixControl.GetHelpCommands(Context);
         }
 
         [Command("gupg")]
@@ -120,7 +100,6 @@ namespace DcBot.GeoMo.Handler
         public async Task EarnMoney()
         {
             var user = await _userService.FirstOrDefaultAsync(x => x.DiscordId == Context.User.Id.ToString());
-
             var skillGM = await _skillService.FirstOrDefaultAsync(x => x.Name == "GM" && x.DiscordId == user.DiscordId);
             var skillMC = await _skillService.FirstOrDefaultAsync(x => x.Name == "MC" && x.DiscordId == user.DiscordId);
 
@@ -150,7 +129,7 @@ namespace DcBot.GeoMo.Handler
 
             if (user.Money < betAmount)
             {
-                await _messageControl.DeleteAfterSendAsync(await _messageControl.EmbedAsync(Context, "money with wings", $"Şans Oyunu İçin Yeterli Bakiyeniz Bulunmamaktadır."));
+                await _messageControl.DeleteAfterSendAsync(await _messageControl.EmbedAsync(Context, "money with wings", $"Şans Oyunu İçin Yeterli Bakiyeniz Bulunmamaktadır. \n Bakiyeniz : `{user.Money}`"));
                 return;
             }
 
@@ -186,7 +165,7 @@ namespace DcBot.GeoMo.Handler
             var skillGm = await _skillService.FirstOrDefaultAsync(x => x.Name == "GM" && x.DiscordId == Context.User.Id.ToString());
             var skillMc = await _skillService.FirstOrDefaultAsync(x => x.Name == "MC" && x.DiscordId == Context.User.Id.ToString());
 
-            await _messageControl.DeleteAfterSendAsync(await _messageControl.EmbedAsync(Context, "six pointed star", $"`GM` - Xp : `{skillGm.Xp}/{skillGm.XpRequired}` | Level : `{skillGm.Level}` \n `MC` - Xp : `{skillMc.Xp}/{skillMc.XpRequired}` | Level : `{skillMc.Level}`"), 15000);
+            await _messageControl.DeleteAfterSendAsync(await _messageControl.EmbedAsync(Context, "six pointed star", $"`GM Hak` - Xp : `{skillGm.Xp}/{skillGm.XpRequired}` | Level : `{skillGm.Level}` \n `MC Kazanç` - Xp : `{skillMc.Xp}/{skillMc.XpRequired}` | Level : `{skillMc.Level}`"), 15000);
         }
 
         [Command("gsend")]
@@ -196,13 +175,20 @@ namespace DcBot.GeoMo.Handler
         {
             var sender = await _userService.FirstOrDefaultAsync(x => x.DiscordId == Context.User.Id.ToString());
             var receiver = await _userService.FirstOrDefaultAsync(x => x.DiscordId == receiverUser.Id.ToString());
+
+            if (sender.Money < amount)
+            {
+                await _messageControl.DeleteAfterSendAsync(await _messageControl.EmbedAsync(Context, "money with wings", $"Bu Miktarı Göndermek İçin Yeterli Bakiyeniz Bulunmamaktadır. \n Bakiyeniz : `{sender.Money}`"));
+
+            }
+
             sender.Money -= amount;
             receiver.Money += amount;
             await _userService.UpdateAsync(sender);
             await _userService.UpdateAsync(receiver);
             await _messageControl.DeleteAfterSendAsync(await _messageControl.EmbedAsync(Context, "moneybag", $"{receiverUser.Mention}! `{sender.UserName}` Sana `{amount}` Kadar `GeoMo Cash` Gönderdi!"));
         }
-        [Command("gosync")]
+        [Command("msync")]
         [Summary("GeoMo Senkronize")]
         [PermissionControl(GuildPermission.Administrator)]
         public async Task SyncCommand()

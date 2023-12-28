@@ -26,7 +26,7 @@ namespace DcBot.GeoShip.Handler
         public async Task ShipCommand(SocketGuildUser shippedUser)
         {
             Random random = new Random();
-            var shipCount = random.Next(0, 100) ;
+            var shipCount = random.Next(0, 100);
             string shipResult;
             string hearts = "heartpulse";
             string brokenHearts = "broken heart";
@@ -89,32 +89,12 @@ namespace DcBot.GeoShip.Handler
             await _messageControl.EmbedShipAsync(Context, shippedUser, shipCount, shipResult, hearts, brokenHearts);
         }
 
-        [Command("gshelp")]
+        [Command("shelp")]
         [Summary("Yardım")]
         [PermissionControlAttribute(GuildPermission.SendMessages)]
         public async Task HelpCommand()
         {
-            var prefixes = _prefixControl.GeoBotPrefixes();
-
-            string prefixList = string.Join(" | ", prefixes);
-
-            string helpMessage = $"**Prefixler:**\n| {prefixList} |\n\n**Komutlar:**\n";
-
-            var commandGroups = _commandService.Modules
-                .Select(module => new
-                {
-                    ModuleName = module.Name,
-                    Commands = module.Commands
-                    .Where(command => !command.Attributes.OfType<PermissionControlAttribute>().Any() || command.Attributes.OfType<PermissionControlAttribute>().Any(attr => (Context.User as SocketGuildUser).GuildPermissions.Has(attr.RequiredPermission)))
-                    .Select(command => $"`{string.Join("`, `", command.Aliases)}` - {command.Summary ?? "Açıklama Yok"}")
-                });
-
-            foreach (var group in commandGroups)
-            {
-                helpMessage += $"**`{group.ModuleName}`**\n{string.Join("\n", group.Commands)}\n\n";
-            }
-
-            await _messageControl.EmbedAsync(Context, "white check mark", helpMessage);
+            await _prefixControl.GetHelpCommands(Context);
         }
     }
 }

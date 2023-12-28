@@ -50,7 +50,10 @@ namespace DcBot.GeoMo.General
 
         private async Task MessageReceivedAsync(SocketMessage socketMessage)
         {
-            await _prefixControl.GeoCommandPrefixer(_initializeBot.Client, socketMessage, "GeoMo");
+            if (socketMessage is SocketUserMessage userMessage && !userMessage.Author.IsBot)
+            {
+                await _prefixControl.GeoCommandPrefixer(_initializeBot.Client, socketMessage, "GeoMo");
+            }
         }
     }
 }

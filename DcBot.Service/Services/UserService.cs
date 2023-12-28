@@ -32,6 +32,11 @@ namespace DcBot.Service.Services
             await _UserDal.ChangeStatusAsync(t);
         }
 
+        public async Task DeleteAllQueryAsync(string tableName)
+        {
+            await _UserDal.DeleteAllQueryAsync(tableName);
+        }
+
         public async Task DeleteAsync(User t)
         {
             await _UserDal.DeleteAsync(t);
@@ -65,6 +70,16 @@ namespace DcBot.Service.Services
         public async Task<List<User>> ToListByFilterAsync(Expression<Func<User, bool>> filter)
         {
             return await _UserDal.ToListByFilterAsync(filter);
+        }
+
+        public async Task<List<User>> ToListByNoTrackAsync()
+        {
+            return await _UserDal.ToListByNoTrackAsync();
+        }
+
+        public async Task<List<User>> ToListFilteringByNoTrackAsync(Expression<Func<User, bool>> filter)
+        {
+            return await _UserDal.ToListFilteringByNoTrackAsync(filter);
         }
 
         public async Task UpdateAsync(User t)

@@ -27,6 +27,11 @@ namespace DcBot.Service.Services
             await _AfkDal.ChangeStatusAsync(t);
         }
 
+        public async Task DeleteAllQueryAsync(string tableName)
+        {
+            await _AfkDal.DeleteAllQueryAsync(tableName);
+        }
+
         public async Task DeleteAsync(Afk t)
         {
             await _AfkDal.DeleteAsync(t);
@@ -65,6 +70,16 @@ namespace DcBot.Service.Services
         public async Task<List<Afk>> ToListByFilterAsync(Expression<Func<Afk, bool>> filter)
         {
             return await _AfkDal.ToListByFilterAsync(filter);
+        }
+
+        public async Task<List<Afk>> ToListByNoTrackAsync()
+        {
+             return await _AfkDal.ToListByNoTrackAsync();
+        }
+
+        public async Task<List<Afk>> ToListFilteringByNoTrackAsync(Expression<Func<Afk, bool>> filter)
+        {
+             return await _AfkDal.ToListFilteringByNoTrackAsync(filter);
         }
 
         public async Task UpdateAsync(Afk t)

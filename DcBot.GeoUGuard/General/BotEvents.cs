@@ -55,7 +55,10 @@ namespace DcBot.GeoUGuard.General
         }
         private async Task MessageReceivedAsync(SocketMessage socketMessage)
         {
-            await _prefixControl.GeoCommandPrefixer(_initializeBot.Client, socketMessage, "GeoUGuard");
+            if (socketMessage is SocketUserMessage userMessage && !userMessage.Author.IsBot)
+            {
+                await _prefixControl.GeoCommandPrefixer(_initializeBot.Client, socketMessage, "GeoUGuard");
+            }
         }
     }
 }

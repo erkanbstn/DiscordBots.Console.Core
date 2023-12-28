@@ -34,18 +34,11 @@ namespace DcBot.Common.MessageHandler
         }
         public async Task DeleteAfterSendAsync(RestUserMessage restUserMessage, int deleteTime = 3000)
         {
-            Task.Delay(deleteTime).ContinueWith(_ => restUserMessage.DeleteAsync());
+            await Task.Delay(deleteTime).ContinueWith(_ => restUserMessage.DeleteAsync());
         }
         public async Task DeleteAfterSendAsync(IUserMessage userMessage, int deleteTime = 3000)
         {
-            Task.Delay(deleteTime).ContinueWith(_ => userMessage.DeleteAsync());
-        }
-        public async Task<RestUserMessage> MessageAsync(SocketCommandContext context, string content, bool isReaction = false, string emoteKey = null)
-        {
-            if (isReaction)
-                await ReactionAsync(context, emoteKey);
-
-            return await context.Channel.SendMessageAsync(content);
+            await Task.Delay(deleteTime).ContinueWith(_ => userMessage.DeleteAsync());
         }
         public async Task<RestUserMessage> EmbedAsync(SocketCommandContext context, string emoteKey, string content, string footer = "Created By Geo.")
         {
@@ -77,7 +70,14 @@ namespace DcBot.Common.MessageHandler
 
             return await context.Channel.SendMessageAsync(embed: embedMessage);
         }
-        public async Task<IUserMessage> MessageAsync(SocketGuild socketGuild, string content, bool isReaction = false, string emoteKey = null)
+        public async Task<RestUserMessage> MessageAsync(SocketCommandContext context, string content, bool isReaction = false, string? emoteKey = null)
+        {
+            if (isReaction)
+                await ReactionAsync(context, emoteKey);
+
+            return await context.Channel.SendMessageAsync(content);
+        }
+        public async Task<IUserMessage> MessageAsync(SocketGuild socketGuild, string content, bool isReaction = false, string? emoteKey = null)
         {
             var channel = (socketGuild.Channels.FirstOrDefault(x => x.Name.Contains("bot")) as ITextChannel);
             var message = await channel.SendMessageAsync(content);
@@ -87,7 +87,7 @@ namespace DcBot.Common.MessageHandler
 
             return message;
         }
-        public async Task<IUserMessage> MessageAsync(SocketGuildUser socketGuildUser, string channelName, string content, bool isReaction = false, string emoteKey = null)
+        public async Task<IUserMessage> MessageToChannel(SocketGuildUser socketGuildUser, string channelName, string content, bool isReaction = false, string? emoteKey = null)
         {
             var channel = socketGuildUser.Guild.Channels.FirstOrDefault(channel => channel.Name.Equals(channelName));
             var message = await (channel as ITextChannel).SendMessageAsync(content);

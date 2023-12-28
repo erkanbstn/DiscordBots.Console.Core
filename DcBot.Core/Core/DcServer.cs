@@ -10,5 +10,6 @@
         public List<User> Users { get; set; }
         public List<Channel> Channels { get; set; }
         public List<Skill> Skills { get; set; }
+        public List<RoleTypeRelation> RoleTypeRelations { get; set; }
     }
 }

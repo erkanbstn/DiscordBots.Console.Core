@@ -26,21 +26,6 @@ namespace DcBot.GeoBot.Handler
             await _messageControl.DeleteAfterSendAsync(await _messageControl.MessageToChannel(socketGuild, "bot", "Geo Bot !", "robot"));
         }
 
-        // User 
-        public async Task UserJoinedAsync(SocketGuildUser user)
-        {
-            var role = user.Guild.GetRole(1185709334789886033);
-            await user.AddRoleAsync(role);
-
-            var welcomeChannel = user.Guild.GetTextChannel(1185670107528187937);
-            await welcomeChannel.SendMessageAsync($"Hoşgeldin {user.Mention} Sana {role.Mention} Rolünü Atadım.!");
-        }
-        public async Task UserLeftAsync(SocketGuild socketGuild, SocketUser socketUser)
-        {
-            var welcomeChannel = socketGuild.GetTextChannel(1185670107528187937);
-            await welcomeChannel.SendMessageAsync($"Görüşürüz {socketUser.Mention}.!");
-        }
-
         // AFK
         public async Task ExitAfkCommand(SocketMessage socketMessage, DiscordSocketClient discordSocketClient)
         {

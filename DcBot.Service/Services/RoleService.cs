@@ -15,11 +15,6 @@ namespace DcBot.Service.Services
             _RoleDal = RoleRepository;
         }
 
-        public async Task ChangeRoleTypeAsync(RoleTypes roleTypes, Role role)
-        {
-            await _RoleDal.ChangeRoleTypeAsync(roleTypes, role);
-        }
-
         public async Task ChangeStatusAsync(Role t, bool status)
         {
             if (status)
@@ -31,6 +26,11 @@ namespace DcBot.Service.Services
                 t.Status = true;
             }
             await _RoleDal.ChangeStatusAsync(t);
+        }
+
+        public async Task DeleteAllQueryAsync(string tableName)
+        {
+            await _RoleDal.DeleteAllQueryAsync(tableName);
         }
 
         public async Task DeleteAsync(Role t)
@@ -66,6 +66,16 @@ namespace DcBot.Service.Services
         public async Task<List<Role>> ToListByFilterAsync(Expression<Func<Role, bool>> filter)
         {
             return await _RoleDal.ToListByFilterAsync(filter);
+        }
+
+        public async Task<List<Role>> ToListByNoTrackAsync()
+        {
+            return await _RoleDal.ToListByNoTrackAsync();
+        }
+
+        public async Task<List<Role>> ToListFilteringByNoTrackAsync(Expression<Func<Role, bool>> filter)
+        {
+            return await _RoleDal.ToListFilteringByNoTrackAsync(filter);
         }
 
         public async Task UpdateAsync(Role t)

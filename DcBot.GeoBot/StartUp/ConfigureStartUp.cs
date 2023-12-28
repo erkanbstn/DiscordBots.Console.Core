@@ -2,6 +2,7 @@
 using DcBot.Common.PermissionHandler;
 using DcBot.Common.PrefixHandler;
 using DcBot.Common.QuestionHandler;
+using DcBot.Common.RandomHandler;
 using DcBot.Data;
 using DcBot.Data.Datas;
 using DcBot.Data.Interfaces;
@@ -55,6 +56,8 @@ namespace DcBot.GeoBot.StartUp
         {
             var scopedServices = new List<(Type InterfaceType, Type ImplementationType)>
             {
+                (typeof(IRoleTypeRelationDal), typeof(EFRoleTypeRelationDal)),
+                (typeof(IRoleTypeRelationService), typeof(RoleTypeRelationService)),
                 (typeof(IAfkDal), typeof(EFAfkDal)),
                 (typeof(IAfkService), typeof(AfkService)),
                 (typeof(IDcServerDal), typeof(EFDcServerDal)),
@@ -63,6 +66,9 @@ namespace DcBot.GeoBot.StartUp
                 (typeof(IQuestionControl), typeof(QuestionControl)),
                 (typeof(IMessageControl), typeof(MessageControl)),
                 (typeof(IPermissionControl), typeof(PermissionControl)),
+                (typeof(IRandomControl), typeof(RandomControl)),
+                (typeof(IRoleDal), typeof(EFRoleDal)),
+                (typeof(IRoleService), typeof(RoleService)),
             };
 
             foreach (var (interfaceType, implementationType) in scopedServices)

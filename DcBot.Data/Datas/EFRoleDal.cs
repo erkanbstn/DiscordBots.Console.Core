@@ -11,11 +11,5 @@ namespace DcBot.Data.Datas
         {
             _appDbContext = appDbContext;
         }
-
-        public async Task ChangeRoleTypeAsync(RoleTypes roleTypes, Role role)
-        {
-            role.RoleType = roleTypes;
-            await _appDbContext.SaveChangesAsync();
-        }
     }
 }

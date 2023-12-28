@@ -63,6 +63,8 @@ namespace DcBot.GeoRGuard.StartUp
                 (typeof(IQuestionControl), typeof(QuestionControl)),
                 (typeof(IMessageControl), typeof(MessageControl)),
                 (typeof(IPermissionControl), typeof(PermissionControl)),
+                (typeof(IRoleTypeRelationDal), typeof(EFRoleTypeRelationDal)),
+                (typeof(IRoleTypeRelationService), typeof(RoleTypeRelationService)),
             };
 
             foreach (var (interfaceType, implementationType) in scopedServices)

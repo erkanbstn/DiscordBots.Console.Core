@@ -27,6 +27,11 @@ namespace DcBot.Service.Services
             await _ChannelDal.ChangeStatusAsync(t);
         }
 
+        public async Task DeleteAllQueryAsync(string tableName)
+        {
+             await _ChannelDal.DeleteAllQueryAsync(tableName);
+        }
+
         public async Task DeleteAsync(Channel t)
         {
             await _ChannelDal.DeleteAsync(t);
@@ -60,6 +65,16 @@ namespace DcBot.Service.Services
         public async Task<List<Channel>> ToListByFilterAsync(Expression<Func<Channel, bool>> filter)
         {
             return await _ChannelDal.ToListByFilterAsync(filter);
+        }
+
+        public async Task<List<Channel>> ToListByNoTrackAsync()
+        {
+            return await _ChannelDal.ToListByNoTrackAsync();
+        }
+
+        public async Task<List<Channel>> ToListFilteringByNoTrackAsync(Expression<Func<Channel, bool>> filter)
+        {
+            return await _ChannelDal.ToListFilteringByNoTrackAsync(filter);
         }
 
         public async Task UpdateAsync(Channel t)

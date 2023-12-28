@@ -55,6 +55,8 @@ namespace DcBot.GeoCGuard.StartUp
         {
             var scopedServices = new List<(Type InterfaceType, Type ImplementationType)>
             {
+                (typeof(IRoleTypeRelationDal), typeof(EFRoleTypeRelationDal)),
+                (typeof(IRoleTypeRelationService), typeof(RoleTypeRelationService)),
                 (typeof(IChannelDal), typeof(EFChannelDal)),
                 (typeof(IChannelService), typeof(ChannelService)),
                 (typeof(IDcServerDal), typeof(EFDcServerDal)),

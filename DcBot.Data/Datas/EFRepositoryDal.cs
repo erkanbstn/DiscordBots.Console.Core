@@ -26,26 +26,23 @@ namespace DcBot.Data.Datas
             await _appDbContext.SaveChangesAsync();
         }
 
+        public async Task DeleteAllQueryAsync(string tableName)
+        {
+            var sql = $"TRUNCATE TABLE {tableName};";
+            await _appDbContext.Database.ExecuteSqlRawAsync(sql);
+        }
+
         public async Task DeleteAsync(T t)
         {
             _object.Remove(t);
             await _appDbContext.SaveChangesAsync();
         }
 
-        public async Task<T> FirstOrDefaultAsync(Expression<Func<T, bool>> filter)
-        {
-            return await _object.FirstOrDefaultAsync(filter);
-        }
+        public async Task<T> FirstOrDefaultAsync(Expression<Func<T, bool>> filter) => await _object.FirstOrDefaultAsync(filter);
 
-        public async Task<T> GetByDiscordIdAsync(Expression<Func<T, bool>> filter)
-        {
-            return await _object.FirstOrDefaultAsync(filter);
-        }
+        public async Task<T> GetByDiscordIdAsync(Expression<Func<T, bool>> filter) => await _object.FirstOrDefaultAsync(filter);
 
-        public async Task<T> GetByIdAsync(int? id)
-        {
-            return await _object.FindAsync(id);
-        }
+        public async Task<T> GetByIdAsync(int? id) => await _object.FindAsync(id);
 
         public async Task InsertAsync(T t)
         {
@@ -55,10 +52,20 @@ namespace DcBot.Data.Datas
 
         public async Task<List<T>> ToListAsync()
         {
-            return await _object.AsNoTracking().ToListAsync();
+            return await _object.ToListAsync();
         }
 
         public async Task<List<T>> ToListByFilterAsync(Expression<Func<T, bool>> filter)
+        {
+            return await _object.Where(filter).ToListAsync();
+        }
+
+        public async Task<List<T>> ToListByNoTrackAsync()
+        {
+            return await _object.AsNoTracking().ToListAsync();
+        }
+
+        public async Task<List<T>> ToListFilteringByNoTrackAsync(Expression<Func<T, bool>> filter)
         {
             return await _object.Where(filter).AsNoTracking().ToListAsync();
         }

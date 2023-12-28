@@ -4,6 +4,9 @@ namespace DcBot.Service.Interfaces
 {
     public interface IRepositoryService<T>
     {
+        Task DeleteAllQueryAsync(string tableName);
+        Task<List<T>> ToListByNoTrackAsync();
+        Task<List<T>> ToListFilteringByNoTrackAsync(Expression<Func<T, bool>> filter);
         Task InsertAsync(T t);
         Task DeleteAsync(T t);
         Task ChangeStatusAsync(T t, bool status);

@@ -27,6 +27,11 @@ namespace DcBot.Service.Services
             await _SkillDal.ChangeStatusAsync(t);
         }
 
+        public async Task DeleteAllQueryAsync(string tableName)
+        {
+            await _SkillDal.DeleteAllQueryAsync(tableName);
+        }
+
         public async Task DeleteAsync(Skill t)
         {
             await _SkillDal.DeleteAsync(t);
@@ -60,6 +65,16 @@ namespace DcBot.Service.Services
         public async Task<List<Skill>> ToListByFilterAsync(Expression<Func<Skill, bool>> filter)
         {
             return await _SkillDal.ToListByFilterAsync(filter);
+        }
+
+        public async Task<List<Skill>> ToListByNoTrackAsync()
+        {
+            return await _SkillDal.ToListByNoTrackAsync();
+        }
+
+        public async Task<List<Skill>> ToListFilteringByNoTrackAsync(Expression<Func<Skill, bool>> filter)
+        {
+            return await _SkillDal.ToListFilteringByNoTrackAsync(filter);
         }
 
         public async Task UpdateAsync(Skill t)
